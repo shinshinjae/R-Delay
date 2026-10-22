@@ -1,0 +1,14 @@
+{
+  "V": "20261023c",
+  "files": {
+    "docs/assets/css/method.css": "77d45c1dc8487e559009105be64cc6c002d555bc5d6ad10f43594b5c944962b2",
+    "docs/assets/css/style.css": "7476313f4d28099db20dc91c6d4e4508ced5860b990b906e5333960858481fb9",
+    "docs/assets/js/app.js": "3a68cdd56446b01ae7dbb843894084698a975e11a900a6b88b5f86eab9735bb1",
+    "docs/assets/js/charts.js": "2700d6a852826f2bf30bc813115b28f6621210eac85f934ddc212625f5a01e56",
+    "docs/assets/js/derive.js": "f55ff866a2b145e805969163a6d745704ce645eb6176402dacf51708fecea8cf",
+    "docs/assets/js/engine-worker.js": "d058ff6a56c2fbbdff5ba8909e07ec85b85af93fd04ad4dff154cb3ce02cc9e9",
+    "docs/assets/js/format.js": "e3b6610beeb68950197aa74eb599ed42d97908bfdd3f19978e17b42b8205143b",
+    "docs/assets/js/method.js": "6dc07f1416f182acc11bffd353e785f0693ef939a10f8b25333af9b61dd31057",
+    "docs/assets/js/validation-tables.js": "0c5c92354dd852a480de3c02b1a7c5daa42d9dff29c29850f69f72d34f280715"
+  }
+}

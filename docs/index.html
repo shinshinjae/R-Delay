@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>R-Delay · 부산신항 지연 조기경보</title>
+  <meta name="description" content="부산신항 지연이 번지기 전에 화물별 출발 시각과 화주 안내를 정해 주는 개념검증 시연(합성 데이터).">
+  <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261023c">
+  <script>
+    // 배포 직후 옛 서비스 워커가 옛 화면 파일을 섞어 주면 첫 화면이 비어 버린다. 첫 화면을 그리기 전에 화면 스크립트(assets/js)에서
+    // 오류가 나면, 새 워커를 내려받는 중이면 자리 잡을 때까지(최대 30초), 아니면 4초 기다렸다가 한 번만 새로 고친다.
+    // 새 워커가 자리 잡으면(controllerchange, 워커가 바뀔 때 한 번뿐) 다시 연다. 그래도 안 되면 안내 문구를 띄운다. app.js의 RELOAD_KEY와 같은 키.
+    (function () {
+      var KEY = "rdelay-reload-once", armed = false, root = document.documentElement;
+      function go() { if (!root.dataset.ready) location.reload(); }
+      function giveUp() {
+        if (root.dataset.ready || document.querySelector("p.err")) return;
+        var p = document.createElement("p");
+        p.className = "err";
+        p.dataset.guard = "1";
+        p.textContent = "화면을 불러오지 못했습니다. 새로 고침해 보세요.";
+        (document.querySelector("main .wrap") || document.body).prepend(p);
+      }
+      function retry() {
+        if (armed || root.dataset.ready || !/^https?:$/.test(location.protocol)) return;
+        armed = true;
+        var sw = navigator.serviceWorker, first = false;
+        if (sw) sw.addEventListener("controllerchange", go, { once: true });
+        try { first = !sessionStorage.getItem(KEY); if (first) sessionStorage.setItem(KEY, "1"); } catch (e) { first = false; }
+        if (!first) { setTimeout(giveUp, 8000); return; }
+        var wait = function (ms) { setTimeout(go, ms); };
+        if (sw && sw.getRegistration) {
+          sw.getRegistration().then(function (reg) {
+            if (!reg) return wait(4000);
+            return reg.update().catch(function () {}).then(function () { wait(reg.installing || reg.waiting ? 30000 : 4000); });
+          }).catch(function () { wait(4000); });
+        } else wait(4000);
+      }
+      var APP = new URL("assets/js/", document.baseURI).href; // 이 사이트의 화면 스크립트만 본다(다른 출처·확장 기능 오류는 무시)
+      function fromApp(s) { return (s || "").indexOf(APP) !== -1; }
+      window.addEventListener("error", function (e) { if (fromApp(e.filename)) retry(); });
+      // 모듈 파일을 받지 못한 실패는 script 요소에서만 나고 위로 올라오지 않으므로 캡처 단계에서 본다
+      window.addEventListener("error", function (e) { var t = e.target; if (t && t.tagName === "SCRIPT" && fromApp(t.src)) retry(); }, true);
+      window.addEventListener("unhandledrejection", function (e) { if (fromApp(e.reason && e.reason.stack)) retry(); });
+    })();
+  </script>
+  <script type="module" src="assets/js/app.js?v=20261023c"></script>
+</head>
+<body>
+<a class="skip" href="#status">본문으로 건너뛰기</a>
+<header class="appbar">
+  <div class="wrap">
+    <div class="brand">
+      <h1>R-Delay</h1>
+      <p id="tagline">운송사 배차 담당용 · 부산신항 지연 위험을 계산해 화물별 출발 시각과 화주 안내를 제안합니다</p>
+    </div>
+    <div class="appbar-right">
+      <button type="button" class="badge" id="about-btn" aria-haspopup="dialog">ⓘ 시연용 가상 데이터</button>
+      <a id="method-link" href="method.html"><span class="long">작동 원리·검증</span><span class="short">원리</span> →</a>
+    </div>
+  </div>
+</header>
+
+<section id="scenario-bar" aria-label="시연 상황">
+  <div class="wrap">
+    <div class="sb-label">상황 바꿔보기 <span class="muted">(시연용 가상 사건)</span></div>
+    <div id="scenario-chips" role="radiogroup" aria-label="시연 상황"></div>
+    <div class="sb-line">
+      <p id="scenario-line"></p>
+      <button type="button" class="link" id="scenario-more" aria-expanded="false" aria-controls="scenario-summary">상황 설명 ▾</button>
+      <span class="sb-meta"><span id="as-of"></span> · <span id="source-tag">기본 조건</span>
+        <button type="button" class="link" id="reset-defaults" hidden>기본값으로 되돌리기</button></span>
+    </div>
+    <p id="scenario-summary" hidden></p>
+  </div>
+</section>
+
+<nav id="jump" aria-label="빠른 이동">
+  <div class="wrap">
+    <a href="#scenario-bar" class="jump-scn" id="jump-scn" aria-label="상황 바꾸기">장비 고장</a>
+    <a href="#status">지금 상황</a>
+    <a href="#cargo">내 화물&nbsp;<span id="jump-n">4</span></a>
+    <a href="#driver">기사님 안내</a>
+    <button type="button" class="badge-mini" id="about-btn-m" aria-haspopup="dialog" aria-label="시연용 가상 데이터 안내">가상</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <section id="status" class="card banner" data-level="good" aria-labelledby="status-title">
+      <div class="banner-head">
+        <h2 id="status-title"></h2>
+        <button type="button" class="link" id="open-detail">자세히 보기 →</button>
+      </div>
+      <dl id="status-lines">
+        <dt id="st-cause-dt">원인</dt><dd id="st-cause"></dd>
+        <dt>전망</dt><dd id="st-outlook"></dd>
+        <dt>할 일</dt><dd><a href="#cargo" id="st-todo"></a></dd>
+      </dl>
+      <p id="st-index"></p>
+      <p id="rd-info-text" class="aside" hidden></p>
+      <p class="aside" id="as-of-m"><span id="as-of-m-text"></span> <span id="src-m"></span> <button type="button" class="link" id="reset-defaults-m" hidden>기본값으로</button></p>
+    </section>
+
+    <div class="board">
+      <section id="where" class="card" aria-labelledby="where-h">
+        <div class="card-head">
+          <h2 id="where-h">어디가 막혔나</h2>
+          <p class="aside">지연 중 = 지연된 작업(배·차량·화물) 비율</p>
+        </div>
+        <div class="node-groups" aria-hidden="true"><span>바다(신항)</span><span>육상</span><span>항공</span></div>
+        <ol id="node-strip"></ol>
+      </section>
+
+      <section id="cargo" class="card" aria-labelledby="cargo-h">
+        <div class="card-head">
+          <h2 id="cargo-h">오늘 화물 4건</h2>
+          <div id="cargo-counts"></div>
+          <button type="button" class="btn-ghost" id="open-settings" aria-haspopup="dialog">⚙ 조건 바꾸기</button>
+        </div>
+        <ol id="cargo-list"></ol>
+        <p class="aside" id="cargo-foot">같은 차량을 여러 화물에 겹쳐 배정했는지는 확인하지 않습니다 · 판단은 참고용이며 최종 결정은 담당자가 합니다</p>
+      </section>
+
+      <section id="driver" class="card" aria-labelledby="driver-h">
+        <div class="card-head">
+          <h2 id="driver-h">기사님 안내 — 몇 시에 가면 덜 기다릴까요?</h2>
+          <p class="aside">터미널 A(가상) 기준 · 터미널 도착부터 상하차 끝까지 걸리는 시간</p>
+        </div>
+        <p class="drv-warn" id="drv-warn" hidden></p>
+        <div class="drv-big" id="drv-big"></div>
+        <p class="drv-hint" id="drv-hint">도착 시각별 소요 — 칸을 누르면 그 시각에 도착했을 때 걸리는 시간이 나옵니다</p>
+        <div id="drv-band" role="group" aria-label="도착 시각별 소요" aria-describedby="drv-best-sr"></div>
+        <p class="drv-legend" aria-hidden="true">
+          <span class="lg-lv"><i class="shape" data-level="good"></i>1시간 이내</span><span class="lg-lv"><i class="shape" data-level="warning"></i>1~2시간</span>
+          <span class="lg-lv"><i class="shape" data-level="critical"></i>2시간 넘음</span><span id="lg-best" hidden><i class="uline"></i>컨테이너 찾기 좋은 시간</span>
+          <span id="lg-early" hidden><i class="dim"></i>컨테이너 나오기 전</span><span id="lg-closed" hidden><i class="hatch"></i>수출 반입 금지(수입 반출은 가능)</span>
+        </p>
+        <p id="drv-readout"></p>
+        <p id="drv-ready" class="drv-line"></p>
+        <p class="aside" id="drv-foot">터미널 A만 계산합니다 · 실제 게이트 기록으로는 아직 검증하지 않았습니다</p>
+        <span class="sr-only" id="drv-best-sr"></span>
+      </section>
+
+      <section id="trust" class="card" aria-labelledby="trust-h">
+        <div class="card-head"><h2 id="trust-h">믿을 수 있나요?</h2></div>
+        <p class="how">어떻게 계산하나요? 감염병의 재생산수처럼, 지연 1건이 새 지연을 몇 건 낳는지 관측으로 다시 계산합니다. <a href="method.html#overview">작동 원리 보기 →</a></p>
+        <h3 class="trust-h" id="trust-good-h">잘 맞은 점</h3>
+        <ul class="trust-list" id="trust-good" aria-labelledby="trust-good-h"></ul>
+        <h3 class="trust-h" id="trust-lim-h">한계</h3>
+        <ul class="trust-list" id="trust-limits" aria-labelledby="trust-lim-h"></ul>
+        <p class="trust-links"><a href="method.html#valid">검증 결과 전체 보기 →</a> <button type="button" class="link" id="open-valid">이 장면 계산 근거 보기(전문가) →</button></p>
+      </section>
+
+      <section id="trend" class="card" aria-labelledby="trend-h">
+        <div class="card-head"><h2 id="trend-h">번짐 지수 — 지난 24시간·앞으로 24시간</h2></div>
+        <p class="answer" id="trend-line"></p>
+        <div class="legend" id="trend-legend"></div>
+        <div class="chart" id="trend-chart"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>R-Delay <span id="foot-ver">v1.1.0 · 엔진 v1.0.0</span> · 2026 동남권 멀티도메인 모빌리티 비즈니스 해커톤(개인부문) 출품작 · MIT License ·
+      <a href="https://github.com/shinshinjae/R-Delay">GitHub</a> · <a href="https://github.com/shinshinjae/R-Delay#readme">README</a> ·
+      <a href="https://github.com/shinshinjae/R-Delay/blob/main/MODEL.md">MODEL.md</a> · <a href="method.html">작동 원리·검증</a></p>
+    <p>계산은 모두 이 브라우저 안에서 합니다. 입력값은 어디에도 보내지 않습니다. 한 번 열면 인터넷 없이도 기본 결과를 볼 수 있습니다.</p>
+    <p>의사결정 지원용 시연입니다. 배차·통보의 최종 판단과 책임은 사용자에게 있으며, 원인 판정은 모형상 배분으로 책임 소재 판단에 쓰지 않습니다.</p>
+    <p id="build-info" class="muted"></p>
+    <p class="muted engine-line"><span class="engine" id="engine" data-state="idle"><span class="dot" aria-hidden="true"></span><span id="engine-text">기본 결과</span></span></p>
+  </div>
+</footer>
+
+<!-- 자세히 보기(연구·검증용 원자료) -->
+<dialog id="detail" class="sheet" aria-labelledby="detail-h">
+  <div class="sheet-head">
+    <h2 id="detail-h">자세히 보기</h2>
+    <button type="button" class="btn-ghost" data-close>닫기</button>
+  </div>
+  <p class="aside sheet-note">연구·검증용 원자료입니다. 메인 화면 문장은 반올림한 값입니다.</p>
+  <div class="tabs" role="tablist" aria-label="자세히 보기 항목">
+    <button type="button" role="tab" id="tab-trend" aria-controls="panel-trend" aria-selected="true">추이</button>
+    <button type="button" role="tab" id="tab-nodes" aria-controls="panel-nodes" aria-selected="false" tabindex="-1">거점</button>
+    <button type="button" role="tab" id="tab-cause" aria-controls="panel-cause" aria-selected="false" tabindex="-1">원인</button>
+    <button type="button" role="tab" id="tab-network" aria-controls="panel-network" aria-selected="false" tabindex="-1">경로</button>
+    <button type="button" role="tab" id="tab-queue" aria-controls="panel-queue" aria-selected="false" tabindex="-1">대기</button>
+    <button type="button" role="tab" id="tab-obs" aria-controls="panel-obs" aria-selected="false" tabindex="-1">관측</button>
+    <button type="button" role="tab" id="tab-valid" aria-controls="panel-valid" aria-selected="false" tabindex="-1">검증</button>
+  </div>
+  <div class="sheet-body">
+    <section role="tabpanel" id="panel-trend" aria-labelledby="tab-trend">
+      <h3>지연 번짐 지수: 지난 24시간과 앞으로 24시간</h3>
+      <p class="aside">1보다 크면 지연 1건이 평균 1건 넘게 새 지연을 낳아 연쇄가 커집니다. 띠는 예상 범위(10번 중 8번)입니다.</p>
+      <div class="checks">
+        <label><input type="checkbox" id="show-smooth"> 사후 재추정(이후 관측까지 사용 · 운영 중엔 못 씀)</label>
+        <label><input type="checkbox" id="show-truth"> 검증용 정답(가상 세계에서만 알 수 있는 값)</label>
+      </div>
+      <div class="legend" id="rd-legend"></div>
+      <div class="chart" id="rd-chart"></div>
+      <p class="aside" id="rd-caption" hidden></p>
+    </section>
+    <section role="tabpanel" id="panel-nodes" aria-labelledby="tab-nodes" hidden>
+      <h3>거점별 지연 중인 작업 비율</h3>
+      <p class="aside">지연 중인 작업(배·차량·화물)의 비율입니다. 가는 가로선은 막힘 기준, 띠는 예상 범위(10번 중 8번)입니다.</p>
+      <div class="legend" id="nodes-legend"></div>
+      <div class="grid-2" id="nodes-grid"></div>
+    </section>
+    <section role="tabpanel" id="panel-cause" aria-labelledby="tab-cause" hidden>
+      <h3>만약 이 요인이 평소였다면?</h3>
+      <p class="aside">요인을 하나씩 평소 값으로 되돌렸을 때의 지연 번짐 지수입니다. 점은 가운데 값, 가는 선은 예상 범위, 굵은 세로선은 1입니다.</p>
+      <div id="factor-bars"></div>
+      <ul class="aside plain" id="cause-notes"></ul>
+      <details class="expert">
+        <summary>민감도(전문가)</summary>
+        <div class="table-wrap"><table id="cause-table"></table></div>
+        <div class="table-wrap"><table id="xi-table"></table></div>
+        <p class="aside">θ는 거점 규모 가정입니다. 육상·항공은 도메인 안에 거점이 하나라 θ의 영향이 해상 두 터미널에만 나타납니다.</p>
+      </details>
+    </section>
+    <section role="tabpanel" id="panel-network" aria-labelledby="tab-network" hidden>
+      <h3>연쇄 기여도</h3>
+      <p class="aside">각 거점·연결이 지연 확산에 기여하는 몫(합계 1)입니다. 원의 크기는 거점 몫, 화살표 굵기는 거점 간 연결 몫입니다.</p>
+      <p class="aside" id="self-share"></p>
+      <p class="aside" id="where-note"></p>
+      <div class="chart" id="net-chart"></div>
+      <h4>거점별 기여 몫</h4>
+      <div class="chart" id="share-chart"></div>
+      <h4 id="amp-h">항공 반입 거점으로 번지는 지연(건)</h4>
+      <p class="aside" id="amp-note"></p>
+      <div class="chart" id="amp-chart"></div>
+    </section>
+    <section role="tabpanel" id="panel-queue" aria-labelledby="tab-queue" hidden>
+      <h3>배가 부두 자리를 기다리는 시간</h3>
+      <p class="aside">대상 선박이 들어올 때 앞에 있는 선박 수의 분포입니다. 계산 방법은 <a href="method.html#rules">작동 원리</a>에 있습니다.</p>
+      <div class="chart" id="queue-chart"></div>
+      <dl class="kv" id="queue-kv"></dl>
+      <h3>도착 시각별 터미널 반출 소요</h3>
+      <p class="aside">가운데 값과 예상 범위(10번 중 8번)입니다. 점은 덜 걸리는 시간입니다.</p>
+      <div class="chart" id="gate-chart"></div>
+    </section>
+    <section role="tabpanel" id="panel-obs" aria-labelledby="tab-obs" hidden>
+      <h3>관측 기록(2시간 간격)</h3>
+      <p class="aside">관측이 들어올 때마다 계산 표본의 가중치를 고칩니다. 표본 상태(ESS)가 절반 아래로 떨어지면 표본을 다시 뽑습니다(재표본).</p>
+      <div class="table-wrap"><table id="obs-table"></table></div>
+    </section>
+    <section role="tabpanel" id="panel-valid" aria-labelledby="tab-valid" hidden>
+      <h3>이 장면 검증</h3>
+      <p class="aside" id="truth-line"></p>
+      <dl class="kv" id="valid-kv"></dl>
+      <h4>계산 정보</h4>
+      <dl class="kv" id="calc-info"></dl>
+      <p><a href="method.html#valid">전체 검증은 작동 원리·검증 페이지 →</a></p>
+    </section>
+  </div>
+</dialog>
+
+<!-- 조건 바꾸기 -->
+<dialog id="settings" class="sheet" aria-labelledby="settings-h">
+  <div class="sheet-head">
+    <h2 id="settings-h">조건 바꾸기</h2>
+    <button type="button" class="btn-ghost" data-close>닫기</button>
+  </div>
+  <div class="sheet-body">
+    <p class="aside">처음 한 번 계산 엔진(약 8MB)을 내려받습니다. 그 뒤엔 인터넷 없이도 작동합니다. 값을 바꾼 뒤 아래 버튼을 누르면 이 브라우저에서 다시 계산합니다.</p>
+    <p class="engine-line" id="settings-engine"></p>
+    <div id="cargo-sets"></div>
+    <fieldset class="fleet">
+      <legend>차량</legend>
+      <label><input type="radio" name="fleet" id="fleet-0" value="0" checked> 디젤만</label>
+      <label><input type="radio" name="fleet" id="fleet-1" value="1"> 디젤 + 수소 트럭 비교</label>
+    </fieldset>
+    <details id="expert">
+      <summary>전문가 설정</summary>
+      <div class="adv-row">
+        <div class="field range"><label for="kappa">거점 간 연결 강도 κ</label>
+          <div class="row"><input type="range" id="kappa" min="0" max="2" step="0.1" value="1"><output id="kappa-out" for="kappa">1.0</output></div></div>
+        <div class="field"><label for="particles">계산 표본 수(입자)</label>
+          <select id="particles"><option>128</option><option>256</option><option selected>512</option><option>1024</option></select></div>
+        <div class="field"><label for="world">가상 세계 번호</label><input type="number" id="world" value="20261108" min="1" step="1"></div>
+        <div class="field"><label for="seed">추정 난수 시드</label><input type="number" id="seed" value="20261108" min="1" step="1"></div>
+      </div>
+      <p class="aside">가상 세계 번호를 바꾸면 같은 사건 설정에서 물동량·참 경로·관측이 다른 ‘다른 현실’이 만들어집니다. 추정 난수 시드는 같은 현실에서 추정만 다시 합니다.</p>
+    </details>
+    <div class="sheet-actions">
+      <button type="button" class="primary" id="run-btn">이 조건으로 다시 계산</button>
+      <button type="button" class="btn-ghost" id="reset-btn">기본값으로</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- 가상 데이터 안내 -->
+<dialog id="about" class="modal" aria-labelledby="about-h">
+  <h2 id="about-h">시연용 가상 데이터</h2>
+  <p><b>합성 데이터 개념검증(TRL 3 수준)입니다.</b> 실데이터는 아직 연동하지 않았습니다. 화면의 수치는 공개 보도로 확인한 사건 유형(장비 고장, 우회 물량, 명절 물량, 인력 결근)을 본뜬 합성 자료로 계산했으며, 특정 터미널·기업의 자료나 판정이 아닙니다(터미널 이름은 가상). 판단은 의사결정 지원용이고 최종 결정과 책임은 사용자에게 있습니다.</p>
+  <p class="aside">엔진 <span id="about-ver">v1.0.0</span> · <a href="method.html">작동 원리·검증 보기 →</a></p>
+  <div class="sheet-actions"><button type="button" class="primary" data-close autofocus>확인</button></div>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<p class="sr-only" id="sr-live" aria-live="polite"></p>
+<noscript><p class="wrap err">이 시연은 JavaScript가 필요합니다.</p></noscript>
+</body>
+</html>

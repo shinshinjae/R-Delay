@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>R-Delay 작동 원리·검증</title>
+  <meta name="description" content="R-Delay가 지연 번짐 지수를 계산하고 경보·원인·배차를 판단하는 방법, 화면 문구 규칙, 합성 세계 검증 결과와 한계를 정리한 페이지(합성 데이터).">
+  <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261023c">
+  <link rel="stylesheet" href="assets/css/method.css?v=20261023c">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script type="module" src="assets/js/method.js?v=20261023c"></script>
+</head>
+<body class="m-page">
+<a class="m-skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="m-top">
+  <div class="m-top-in">
+    <a class="m-back" href="index.html">← 상황판으로</a>
+    <div class="m-title-row">
+      <h1>R-Delay 작동 원리·검증</h1>
+      <details class="m-about" id="about">
+        <summary class="m-badge" aria-label="시연용 가상 데이터 안내 열기">ⓘ 시연용 가상 데이터</summary>
+        <div class="m-about-body" role="note">
+          <p><b>합성 데이터 개념검증(TRL 3 수준)입니다.</b> 실데이터는 아직 연동하지 않았습니다. 화면의 수치는 공개 보도로 확인한 사건 유형(장비 고장, 우회 물량, 명절 물량, 인력 결근)을 본뜬 합성 자료로 계산했으며, 특정 터미널·기업의 자료나 판정이 아닙니다(터미널 이름은 가상). 판단은 의사결정 지원용이고 최종 결정과 책임은 사용자에게 있습니다.</p>
+        </div>
+      </details>
+    </div>
+    <p class="m-notice">이 페이지의 검증 표는 기본 조건으로 만든 합성 세계 결과입니다. 상황판에서 조건을 바꿔 다시 계산한 값은 상황판의 '자세히 보기'에서 보세요.</p>
+  </div>
+</header>
+
+<div class="m-shell">
+  <nav class="m-toc m-toc-side" aria-label="목차">
+    <p class="m-toc-title">목차</p>
+    <ol>
+      <li><a href="#overview">한눈에 보는 원리</a></li>
+      <li><a href="#model">계산 방법</a></li>
+      <li><a href="#rules">판단 규칙</a></li>
+      <li><a href="#display-rules">화면 문구 규칙</a></li>
+      <li><a href="#valid">검증</a></li>
+      <li><a href="#ai">AI 보조 모듈</a></li>
+      <li><a href="#limits">한계</a></li>
+      <li><a href="#sources">선행연구와 출처</a></li>
+    </ol>
+    <p class="m-toc-back"><a href="index.html">← 상황판으로</a></p>
+  </nav>
+
+  <details class="m-toc m-toc-mobile" id="toc-mobile">
+    <summary>목차</summary>
+    <nav aria-label="목차">
+      <ol>
+        <li><a href="#overview">한눈에 보는 원리</a></li>
+        <li><a href="#model">계산 방법</a></li>
+        <li><a href="#rules">판단 규칙</a></li>
+        <li><a href="#display-rules">화면 문구 규칙</a></li>
+        <li><a href="#valid">검증</a></li>
+        <li><a href="#ai">AI 보조 모듈</a></li>
+        <li><a href="#limits">한계</a></li>
+        <li><a href="#sources">선행연구와 출처</a></li>
+      </ol>
+    </nav>
+  </details>
+
+  <main id="main" class="m-main" tabindex="-1">
+
+    <!-- 1 -->
+    <section id="overview" aria-labelledby="overview-h">
+      <h2 id="overview-h"><span class="m-no">1</span>한눈에 보는 원리</h2>
+      <p class="m-lead">감염병의 재생산수(R)처럼, 지연 1건이 새 지연을 몇 건 낳는지(R<sub>d</sub>)를 2시간마다 관측으로 다시 계산합니다. 1을 넘으면 지연이 불어납니다.</p>
+      <ol class="guide m-guide" aria-label="시연 순서">
+      <li><span><b>① 경보</b> — 지연 1건이 새 지연을 몇 건 낳는지(R<sub>d</sub>)와 적체 수준으로 확산·적체를 알립니다.</span></li>
+      <li><span><b>② 원인</b> — 물량 때문인지, 처리능력·기상 때문인지 반사실 계산으로 가르고 애매하면 ‘판정 보류’로 둡니다.</span></li>
+      <li><span><b>③ 배차</b> — 화물마다 마감 실패확률을 계산해 배차안을 고르고, 맞출 수 없으면 화주 사전 통보 문구를 냅니다.</span></li>
+      </ol>
+      <p class="m-ai-note">AI(f<sub>ω</sub>)는 기상·장비 상태로 전파율의 사전평균을 학습하는 보조 모듈이며, 경보·원인 판정·배차는 확률모형과 기회제약 규칙이 내립니다.</p>
+      <p class="m-plain">쉬운 말로: AI는 날씨·장비 상태로 지연이 번지는 속도의 기본값만 추정하는 보조 역할입니다.</p>
+
+      <h3>3분 시연 순서</h3>
+      <ol class="m-steps">
+        <li><b>장비 고장</b> — 상황판을 열면 기본 상황인 「장비 고장」이 보입니다. <a href="index.html?s=terminal_failure">장비 고장 상황 열기 →</a></li>
+        <li><b>배너</b> — 맨 위 배너에서 지금 상태, 원인, 전망, 오늘 할 일을 한 번에 읽습니다.</li>
+        <li><b>화물 카드 복사</b> — 「화주 안내 필요」 카드에서 [안내 문구 복사]를 눌러 화주에게 보낼 문장을 받습니다.</li>
+        <li><b>상황 칩 바꾸기</b> — 태풍 우회 물량, 명절 물량 같은 다른 상황을 눌러 판단이 어떻게 달라지는지 봅니다.</li>
+        <li><b>기사님 안내</b> — 몇 시에 터미널에 가면 덜 기다리는지 확인합니다. <a href="index.html?s=terminal_failure#driver">기사님 안내 열기 →</a></li>
+      </ol>
+    </section>
+
+    <!-- 2 -->
+    <section id="model" aria-labelledby="model-h">
+      <h2 id="model-h"><span class="m-no">2</span>계산 방법</h2>
+      <p>상세 정의·가정·검증은 저장소의 <a href="https://github.com/shinshinjae/R-Delay/blob/main/MODEL.md">MODEL.md</a>에 있습니다.</p>
+      <p class="m-fallback-note" id="eq-fallback" hidden>수식 글꼴(KaTeX)을 불러오지 못해 TeX 원문으로 보여 드립니다. 인터넷에 연결되면 수식으로 바뀝니다.</p>
+      <div class="eq-list">
+        <div class="eq-item"><div class="eq">\[ \frac{dx_i}{dt}=(1-x_i)\Big[\epsilon_i+\xi_i(t)\,\beta_i(t)\sum_j \tilde C_{ij}x_j\Big]-\gamma_i(t) x_i,\qquad \tilde C=I+\kappa\tau_0 M \]</div>
+          <p>물동량 보정 다층 SIS(비율 단위). x<sub>i</sub>: 거점 i의 지연 비율, ξ<sub>i</sub>: 물동량 보정, β<sub>i</sub>: 전파율, γ<sub>i</sub>: 해소율(공지된 처리능력 반영), M: 거점 간 전이(계획서의 개수 단위 M을 거점 규모로 환산), ε<sub>i</sub>: 외부 유입 지연.</p></div>
+        <div class="eq-item"><div class="eq">\[ \xi_i(t)=\Big(\frac{L_i}{L_{\mathrm{ref},d(i)}}\Big)^{\theta} b_i(t),\qquad b_i(t)=\frac{1}{24}\int_{t-24}^{t}\frac{m_i(s)}{L_i\,h(s)}\,ds,\quad m_i=\frac{X_i}{K_i} \]</div>
+          <p>선행연구의 이동량 보정(중심 7일 창)을 물동량/처리능력으로 옮기고, 실시간 경보용으로 후행 24시간 창으로 바꿨습니다(미래 정보 차단).</p>
+          <p class="eq-def">L<sub>ref,d(i)</sub>: 거점 i가 속한 도메인 d(i)(해상·육상·항공) 안의 평시 평균 가동률 L의 평균. L<sub>i</sub>는 거점 i의 평시 평균 가동률(거점 규모), X<sub>i</sub>는 시간당 물동량, K<sub>i</sub>는 처리능력, h(t)는 시간대 계절지수(평균 1), θ는 거점 규모 탄력성 가정(운영 판정은 θ = 0)입니다.</p></div>
+        <div class="eq-item"><div class="eq">\[ R_d(t)=\rho\Big(\mathrm{diag}\big(\xi\beta(1-x)\big)\,\tilde C\,\Gamma^{-1}\Big),\qquad R_d^{(\xi=1)}=\rho\Big(\mathrm{diag}\big(\beta_\theta(1-x)\big)\,\tilde C\,\Gamma^{-1}\Big) \]</div>
+          <p>현재 상태를 고정한 전파 행렬의 스펙트럼 반지름. 외부 유입이 없을 때(ε=0) 지연 비율이 평형에 머물면 R<sub>d</sub>=1이 되므로(ε&gt;0이면 평형에서 R<sub>d</sub>&lt;1) 확산 경보와 적체 경보(x<sub>i</sub> &gt; 기준)를 함께 씁니다.</p>
+          <p class="eq-def">β<sub>θ</sub> = β·(L<sub>i</sub>/L<sub>ref,d(i)</sub>)<sup>−θ</sup>: θ를 바꿔도 적합이 같도록 다시 매개변수화한 전파율(물량 보정 ξ를 1로 지운 반사실에 씁니다). Γ = diag(γ<sub>i</sub>)는 해소율 대각행렬입니다.</p></div>
+        <div class="eq-item"><div class="eq">\[ \beta_i=\bar\beta_i e^{z_i},\quad dz_i=a\big(\bar z_i-z_i\big)dt+\sigma\,dW_i,\quad \bar z_i=f_\omega(\text{풍속},\text{파고},\text{주말},\text{장비}) \]</div>
+          <p>로그-OU 전파율. 평균 z̄는 학습형 모듈(릿지 회귀)이 예측하고, 시점별 값 z<sub>i</sub>는 관측으로 입자필터가 추정합니다. 경보·판정·배차는 확률모형과 기회제약 규칙이 내립니다.</p></div>
+        <div class="eq-item"><div class="eq">\[ y_{i,k}\sim\mathrm{NB}\big(\lambda_{i,k},\,r\big),\quad \lambda_{i,k}=q\!\int_{t_{k-1}}^{t_k}\!N_i(1-x_i)\big[\epsilon_i+\xi_i\beta_i(\tilde Cx)_i\big]\,ds,\qquad h_{i,k}\sim\mathrm{BetaBin}\big(n_i,\ \phi x_i(t_k),\ \phi(1-x_i(t_k))\big) \]</div>
+          <p>신규 지연 건수와 현재 지연 표본을 조건부 독립으로 결합한 관측 우도. 부트스트랩 입자필터 + 6시간 고정시차 평활.</p>
+          <p class="eq-def">λ<sub>i,k</sub>: 직전 관측 구간(t<sub>k−1</sub>~t<sub>k</sub>, 2시간) 동안 거점 i에서 새로 생길 것으로 기대되는 지연 건수(N<sub>i</sub>: 거점 규모, q = 1: 보고율). r = 10은 음이항 산포, n<sub>i</sub>는 지연 표본 크기, φ = 40은 베타-이항 집중도(평균 n<sub>i</sub>x<sub>i</sub>)입니다.</p></div>
+        <div class="eq-item"><div class="eq">\[ a^\star=\arg\min_{a\in\mathcal A_{\mathrm{feas}},\ \hat p^{+}_q(a)\le\varepsilon}\Big\{c_a+c_w\,\mathbb E[W_q(a)]+c_f\,\hat p_q(a)\Big\},\qquad \hat p^{+}=\max\Big(\hat p+z_{0.95}\sqrt{\hat p(1-\hat p)/\mathrm{ESS}},\ 1-0.05^{1/\mathrm{ESS}}\Big) \]</div>
+          <p>화물 q의 배차안 a(시각, 동력원)별 마감 실패확률 p̂를 선석 대기열 → 컨테이너 양하 → 터미널 반출 → 도로 → (항공 반입 처리) 표본으로 계산한 기회제약 결정.</p>
+          <p class="eq-def">ε: 허용 위험, p̂⁺: 오차 감안 값(모형 안의 몬테카를로 오차만 반영한 상한), c<sub>a</sub>: 변경 비용 + 운행비, c<sub>w</sub>: 시간당 차량 대기 비용, c<sub>f</sub>: 마감 실패 비용.</p></div>
+      </div>
+      <p class="m-sub">수식 표기는 MODEL.md를 따릅니다.</p>
+    </section>
+
+    <!-- 3 -->
+    <section id="rules" aria-labelledby="rules-h">
+      <h2 id="rules-h"><span class="m-no">3</span>판단 규칙</h2>
+      <p class="m-plain">엔진이 경보, 원인, 배차를 정하는 규칙입니다. 상황판의 문장은 모두 이 규칙의 결과를 옮긴 것입니다.</p>
+
+      <h3>경보와 원인 판정</h3>
+      <p>요인을 하나씩 평시 값으로 되돌린 반사실 R<sub>d</sub>입니다. 먼저 확산 확률 P(R<sub>d</sub>&gt;1)이 35~65%면 ‘확산 경계’로 두고 원인을 단정하지 않습니다(경보는 50% 기준). 확산이 확실하면, 확산 중인 경우만 놓고 물량 보정을 지웠을 때 연쇄가 멈추면 ‘물량 주도형’, 그래도 이어지면 ‘처리능력형(물량 외 요인: 처리능력·기상·장비)’, 그 확률이 35~65%면 ‘원인 보류’입니다. 여러 요인이 각각 혼자서도 연쇄를 멈추면 ‘복합’으로 함께 적습니다.</p>
+      <p class="m-sub">θ는 거점 규모 가정입니다. 육상·항공은 도메인 안에 거점이 하나라 θ의 영향이 해상 두 터미널에만 나타납니다.</p>
+
+      <h3>화물 배차 판단</h3>
+      <p>규칙: 실패확률 상한 p̂⁺ = max(p̂ + 1.645·√(p̂(1−p̂)/ESS), 1 − 0.05^(1/ESS))(계획서 식 + 0건 경계 보정, 모형 안의 몬테카를로 오차만 반영)이 허용 위험 ε 이하인 운송사 배차안 가운데 기대비용(변경 비용 + 거리×운행비 + 차량 대기 + 실패 비용×p̂)이 가장 작은 안을 추천합니다. p̂는 ε 이하인데 상한만 넘으면 ‘추정 불확실’로 통보를 보류하고, 어떤 안도 맞출 수 없으면 ‘추천 없음’과 화주 사전 통보 문구를 냅니다. 마감은 사후에 늦추지 않습니다. ‘우선 양하 요청’은 선사·터미널 승인이 필요한 협의안이라 자동 추천하지 않고 기대 실패확률(승인 시 확률)로만 보입니다. 비용·승인 확률은 합성 가정입니다.</p>
+      <p class="m-sub"><span class="m-label">Sea&amp;Air 화물</span>항공 반입은 현행 인천 기준이며(노선 확대 시 김해·가덕으로 바꿔 계산), 항공 거점 관측은 아직 확보하지 않은 사전 가정입니다.</p>
+
+      <h3>선석 대기</h3>
+      <p>시간가변 M(t)/M(t)/m 대기열의 Kolmogorov 전진방정식(균일화)으로 계산합니다. 지연 비율이 높을수록 선석 생산성이 낮아집니다.</p>
+      <p class="m-sub"><span class="m-label">적용 범위</span>정기선 선석 윈도 배정과 달라, 윈도를 벗어난 선박의 대기에만 적용합니다.</p>
+
+      <h3>관측 갱신</h3>
+      <p>신규 지연 건수 y(음이항)와 현재 지연 표본 h/n(베타-이항)이 들어올 때마다 입자 가중치를 갱신합니다. 유효 입자 수(ESS)가 절반 아래로 떨어지면 재표본추출합니다.</p>
+
+      <h3>기사님 안내(터미널 반출 소요)</h3>
+      <p>화물이 준비된 상태에서 가상 자동화 터미널 A에 도착했을 때 게이트·야드 처리를 마칠 때까지 걸리는 시간의 중앙값과 80% 구간입니다. 공지된 처리능력(선석·장비·출근율)을 반영합니다. 수입 화물은 컨테이너 반출 가능 시각(아래 문구와 배차 판단 카드) 이후에 도착해야 이 시간이 적용됩니다.</p>
+      <p class="m-sub"><span class="m-label">보정 계획</span>게이트·도로와 터미널 야드의 예측 지연 비율과 공지된 처리능력으로 계산한 값이며, 실증에서는 VBS 예약·게이트 반출입 기록으로 보정합니다.</p>
+    </section>
+
+    <!-- 4 -->
+    <section id="display-rules" aria-labelledby="display-rules-h">
+      <h2 id="display-rules-h"><span class="m-no">4</span>화면 문구 규칙</h2>
+      <p>상황판은 엔진이 낸 숫자를 그대로 늘어놓지 않고, 아래 규칙으로 문장과 표시를 만듭니다. 계산 결과는 바꾸지 않고 읽기 쉬운 말로만 옮깁니다.</p>
+      <p class="m-callout"><b>이 규칙들은 엔진이 검증한 출력이 아니라 화면 표시 방식입니다.</b> 아래 5절의 검증 수치는 엔진 출력에 대한 것입니다.</p>
+
+      <h3>쓰는 말</h3>
+      <p>같은 뜻에는 늘 같은 말을 씁니다.</p>
+      <dl class="m-rule-list">
+        <dt>허용 위험</dt><dd>화물마다 정해 둔, 마감을 놓쳐도 감수할 수 있는 확률입니다(기본값 5~10%, 합성 가정).</dd>
+        <dt>오차 감안</dt><dd>놓칠 확률에 계산(표본) 오차만큼 여유를 더한 위쪽 값입니다. 모형 안의 계산 오차만 반영하며, 모형 자체가 틀릴 가능성은 들어 있지 않습니다.</dd>
+        <dt>길면 · 늦으면</dt><dd>걸리는 시간은 「길면」, 시각은 「늦으면」으로 씁니다. 둘 다 10번 중 9번은 이보다 짧거나 이르다고 보는 값(90% 지점)입니다.</dd>
+        <dt>지금 번지는 중일 확률</dt><dd>지연 번짐 지수가 지금 1을 넘을 확률입니다. 50%를 넘으면 경보를 내고, 35~65%는 판단 경계로 둡니다.</dd>
+        <dt>예상 범위</dt><dd>모형이 80% 확률로 보는 범위입니다. 가상 시험에서 판단 시각 정답을 담은 비율은 상황별 65~93%였습니다(장비 고장 65%). 이 비율은 번짐 지수로 잰 값입니다(5절 표 1).</dd>
+        <dt>막힘 기준</dt><dd>거점에서 지연 중인 작업 비율이 이 값을 넘으면 「막힘」입니다(터미널·게이트·도로 15%, 항공 20%).</dd>
+        <dt>시험에서</dt><dd>가상 세계 시험의 결과는 「시험에서」로 씁니다. 「실제」는 실제 항만 자료를 말할 때만 씁니다.</dd>
+      </dl>
+
+      <h3>상태 표시: 모양·단어·색을 함께</h3>
+      <p>색만으로 구분하지 않도록 모양과 단어를 늘 같이 씁니다.</p>
+      <ul class="m-legend">
+        <li><span class="m-shape" data-level="good" aria-hidden="true"></span><b>좋음</b> 평소 수준, 계획대로 OK, 바꿔도 됨, 거점 보통, 터미널 소요 60분 이하</li>
+        <li><span class="m-shape" data-level="warning" aria-hidden="true"></span><b>주의</b> 막힌 곳만 있고 번짐 신호 약함, 시간 변경 권장, 거점 주의, 소요 60~120분</li>
+        <li><span class="m-shape" data-level="serious" aria-hidden="true"></span><b>심각</b> 지연이 번지기 시작했지만 아직 막힌 곳 없음</li>
+        <li><span class="m-shape" data-level="critical" aria-hidden="true"></span><b>위험</b> 번지는 중이고 막힌 곳 있음, 화주 안내 필요, 거점 막힘, 소요 120분 넘음</li>
+        <li><span class="m-shape" data-level="hold" aria-hidden="true"></span><b>판단 보류</b> 판단 경계, 기준 근처 · 다시 확인, 판단 보류(회색 물음표)</li>
+      </ul>
+
+      <h3>배너 제목</h3>
+      <ul class="m-bullets">
+        <li><b>판단 경계</b>(지금 번지는 중일 확률 35~65%): 회색 물음표와 함께 「지연이 번질 수 있음({p}% · 판단 경계)」 뒤에 「막힌 곳: …」 또는 「아직 막힌 곳 없음」을 씁니다. 색 단계는 주의입니다.</li>
+        <li><b>그 밖</b>: 번지는 중이고 막힌 곳이 있으면 「지연이 번지는 중 · 막힌 곳: …」(위험), 번지기만 하면 「지연이 번지기 시작했습니다 · 아직 막힌 곳 없음」(심각), 막힌 곳만 있으면 「막힌 곳: … · 번짐 신호 약함」(주의), 둘 다 없으면 「평소 수준입니다 · 막힌 곳 없음」(좋음)입니다.</li>
+      </ul>
+
+      <h3>번짐 지수 줄</h3>
+      <p>「지연 번짐 지수 {가운데 값} (예상 범위 {아래 끝}~{위 끝}) · 지금 번지는 중일 확률 {p}%」로 쓰고 ⓘ를 붙입니다. 번짐 지수는 늘 예상 범위와 함께 씁니다. ⓘ에는 네 가지를 적습니다: 지연 1건이 새 지연을 몇 건 낳는지(감염병 재생산수와 같은 개념), 1보다 크면 지연이 불어난다는 것, 예상 범위의 뜻과 가상 시험에서 정답을 담은 비율(65~93%), 50%를 넘으면 경보이고 35~65%는 판단 보류라는 것.</p>
+
+      <h3>전망 문장</h3>
+      <ul class="m-bullets">
+        <li><b>지금 번지는 중(50% 이상)일 때</b>: 예측의 90% 상한이 1 아래로 내려가 24시간 끝까지 머무는 첫 시각이 있으면 「새 지연이 늘어나는 건 {그 시각} 이후 멈출 전망」입니다. 그런 시각이 없고, 번지는 중일 확률이 50% 아래로 내려가 끝까지 머무는 첫 시각이 있으면 「새 지연 증가는 {그 시각}쯤부터 누그러질 전망」입니다. 누그러지는 때가 멈추는 때보다 6시간 넘게 이르면 「새 지연 증가는 {그 시각}쯤부터 누그러질 전망(늦으면 {멈추는 시각} 이후 멈춤)」으로 씁니다. 둘 다 없으면 「번짐이 24시간 동안 이어질 수 있습니다」라고 씁니다.</li>
+        <li><b>지금은 번지지 않을 때</b>: 예측에서 번지는 중일 확률이 50% 이상이 되는 때가 있으면 그 첫 시각으로 「{시각}쯤부터 번질 수 있음」이라고 씁니다.</li>
+        <li><b>막힌 거점마다</b>: 가운데 예측이 막힘 기준 아래로 내려가 끝까지 머무는 시각(풀리는 때), 90% 상한으로 같은 계산을 한 시각(길면), 가운데 예측이 가장 높은 때를 구합니다. 가장 높은 때가 지금보다 20% 이상 높고 24시간의 마지막 2시간 안에 있으면 「{이름} 막힘은 24시간 끝까지 계속 심해질 전망」입니다. 아니면 「{이름} 막힘은 {가장 높은 때}쯤 가장 심했다가 {풀리는 때}쯤(길면 {시각}) 풀릴 전망」이라고 쓰며, 앞부분은 가장 높은 때가 지금보다 20% 이상 높을 때만 붙입니다. 90% 상한으로는 24시간 안에 풀리지 않으면 괄호를 「(길면 24시간 넘게)」로 씁니다. 풀리는 때가 없으면 「{이름} 막힘은 24시간 안에 풀릴 신호가 없습니다」(가장 높은 때가 지금보다 20% 이상 높으면 「{이름} 막힘은 더 심해질 전망(가장 나쁜 때 {시각}쯤)」)입니다.</li>
+        <li><b>새로 막힐 거점</b>: 지금은 막히지 않았지만 12시간 안에 가운데 예측이 막힘 기준에 닿는 거점은 「{이름}는/은 {시각}쯤부터 막힐 수 있음」이라고 씁니다. 조사 은/는은 괄호 설명을 뺀 앞 낱말로 고릅니다.</li>
+        <li>위의 어느 것도 없으면 「앞으로 24시간 큰 변화 없을 전망」이라고 씁니다. 시각은 30분 간격 예측 시각을 그대로 씁니다. 지금(0번 칸)과 예측 끝점(메인 차트에서도 빼는 점)은 쓰지 않고, 끝 2시간 안에서야 나오는 시각은 「24시간 안에」 신호가 없는 것으로 봅니다. 90% 상한이 앞뒤 점은 1 아래인데 외딴 한 점에서만 1을 살짝(1.05 미만) 넘은 것은 그 점마다 무시합니다.</li>
+      </ul>
+
+      <h3>24시간 카드 한 줄</h3>
+      <ul class="m-bullets">
+        <li>번지는 중이면 위 전망의 첫 문장을 씁니다.</li>
+        <li>막힌 곳이 있으면 「{막힌 곳의 전망} · 번짐 지수는 1 근처(번질 확률 최대 {p}%)」입니다.</li>
+        <li>그 밖에는 예측 90% 상한이 24시간 내내 1 아래면 「24시간 내내 1 아래에 머물 전망」, 아니면 「1 근처를 오갈 전망(번질 확률 최대 {p}%)」입니다.</li>
+        <li>마지막 예측 점(24시간 끝)은 첫 화면 차트에 그리지 않습니다.</li>
+      </ul>
+
+      <h3>거점 상태: 막힘 · 주의 · 보통</h3>
+      <dl class="m-rule-list">
+        <dt>막힘</dt><dd>엔진이 적체로 판정한 거점입니다. 지연 중인 작업 비율이 막힘 기준을 넘었다는 뜻입니다. 막힘 기준과 1%p 안이면 「막힘(기준 바로 위)」으로 쓰고 예상 범위를 함께 보입니다.</dd>
+        <dt>주의</dt><dd>막힘은 아니지만, 지금 지연 중 비율이 막힘 기준의 75% 이상이거나 앞으로 12시간 안에 가운데 예측이 막힘 기준에 닿는 거점입니다. 이유를 함께 씁니다: 「{시각}쯤 막힘 기준을 넘을 전망」 또는 「막힘 기준에 가까움」. 막힘 기준과 1%p 안이면 「기준 근처」와 예상 범위를 보입니다.</dd>
+        <dt>보통</dt><dd>나머지 거점입니다.</dd>
+        <dt>기여 표시</dt><dd>지금 번지는 중일 확률이 50% 이상이고 번짐에 대한 몫이 절반 이상인 거점에 「번짐 기여 {N}%(모형 추정)」를 붙입니다. 지연이 시작된 곳이나 책임을 뜻하지 않습니다. 「지연 1건은 약 13시간 안에 항공 반입 지연 약 0.8건」 같은 증폭 문장은 첫 화면에 두지 않고 「자세히 보기 › 경로」에만 둡니다.</dd>
+      </dl>
+
+      <h3>화물 분류</h3>
+      <p>화물마다 엔진의 배차 판단을 아래 여섯 가지 중 하나로 나눕니다. 허용 위험과 비교할 때는 오차 감안 값을 씁니다. 카드는 이 순서로 놓고, 화주 안내 필요 카드끼리는 놓칠 확률이 큰 순서로 놓습니다.</p>
+      <dl class="m-class-list">
+        <dt><span class="m-pill" data-level="warning"><span class="m-shape" data-level="warning" aria-hidden="true"></span>시간 변경 권장</span></dt>
+        <dd>추천안이 지금 계획과 다르고, 지금 계획의 오차 감안 값이 허용 위험을 넘을 때입니다. 「{시각} 출발로 앞당기세요」 또는 「터미널 도착을 {시각}으로 앞당기세요」처럼 씁니다. 근거는 지금 계획의 놓칠 확률이 허용 위험을 넘으면 「지금 계획({시각} {출발/도착})대로면 놓칠 확률 {p} → 바꾸면 {p′}」, 놓칠 확률은 허용 위험 안인데 오차 감안 값만 넘으면 「지금 계획은 오차를 감안하면 {값}로 허용 위험 {ε}를 넘을 수 있음 → {시각}이면 {값′} 이내」입니다. 그 상황의 가상 시험에서 추천대로 바꿔도 놓친 비율이 줄지 않았으면 회색 한 줄 「가상 시험에서는 바꿔도 놓친 비율이 같았습니다({a}→{b})」를 덧붙입니다.</dd>
+        <dt><span class="m-pill" data-level="critical"><span class="m-shape" data-level="critical" aria-hidden="true"></span>화주 안내 필요</span></dt>
+        <dd>어떤 배차안도 허용 위험을 맞출 수 없을 때입니다. 가장 나은 안도 놓칠 확률이 50% 이상이면 「어느 시각에 가도 절반 넘게 놓칠 전망 — 화주에게 미리 알리세요」, 아니면 「어느 시각에 가도 놓칠 확률이 허용 위험 {ε}를 넘습니다(가장 낮아도 {p}) — 화주에게 가능성을 미리 알리세요」라고 씁니다. 컨테이너 반출이 병목이고 지금 계획의 위험도 가장 나은 안과 같으면 근거로 「컨테이너가 {시각}쯤 나와서 더 일찍 가도 위험이 같습니다」를, 아니면 「가장 나은 안: {시각} · 놓칠 확률 {p}(지금 계획 {시각}이면 {p})」를 씁니다. 우선 하역 요청 정보는 펼친 카드에만 둡니다.</dd>
+        <dt><span class="m-pill" data-level="hold"><span class="m-shape" data-level="hold" aria-hidden="true"></span>기준 근처 · 다시 확인</span></dt>
+        <dd>놓칠 확률 자체는 허용 위험 아래일 수 있지만, 표본을 최대로 늘려도 오차 감안 값을 허용 위험 아래로 내릴 수 없어 엔진이 보수적으로 「추천 없음」으로 끝낸 경우입니다. 가장 덜 위험한 안이 지금 계획이고 오차를 감안해도 10% 미만이면 「계획대로 진행해도 될 가능성이 높습니다(놓칠 확률 {p}) — 다만 계산이 충분히 확실하지 않아 {다음 관측 시각} 관측 후 다시 확인하세요」라고 씁니다. 그렇지 않으면 놓칠 확률이 허용 위험의 절반 미만일 때 「지금 계획대로면 놓칠 확률 {p}이지만 계산 오차가 커서 … 다시 확인하세요」, 허용 위험의 1.25배 이하일 때 「지금 계획대로면 놓칠 확률 {p} — 허용 위험 {ε} 근처라 … 다시 확인하세요」, 그보다 크면 「지금 계획대로면 놓칠 확률 {p}로 허용 위험 {ε}를 넘을 수 있습니다 — …」라고 씁니다. 가장 덜 위험한 안이 지금 계획이 아니면(화면 표기로 위험이 같으면 지금 계획으로 봅니다) 「계획대로」라고 쓰지 않고 「지금 계획({시각})대로면 {위험} → {다른 시각}이면 놓칠 확률 {p} — 다만 …」처럼 계획의 위험과 그 시각을 함께 밝힙니다. 근거는 「오차를 감안하면 {값} · 허용 위험 {ε}」입니다. 안내 문구 복사는 보조 단추로 둡니다.</dd>
+        <dt><span class="m-pill" data-level="hold"><span class="m-shape" data-level="hold" aria-hidden="true"></span>판단 보류</span></dt>
+        <dd>놓칠 확률은 허용 위험 안인데 오차 감안 값이 허용 위험을 넘는 경우입니다(엔진의 「추정 불확실」). 표본을 늘려 다시 계산하면 가를 수 있어 「계산이 아직 불확실합니다 — 표본을 늘려 다시 계산해 보세요」라고 씁니다. 표본이 이미 최대(1024개)이면 다시 계산 단추를 빼고 「표본을 최대로 늘려도 계산 오차가 커서 판단을 미룹니다 — 다음 관측 후 다시 확인하세요」라고 씁니다. 숫자가 지금 계획이 아닌 다른 시각의 것이면 그 시각을 밝히고, 지금 계획이 허용 위험을 넘으면 그 위험(「지금 계획({시각})대로면 거의 확실히 놓침」 등)을 앞에 씁니다.</dd>
+        <dt><span class="m-pill" data-level="good"><span class="m-shape" data-level="good" aria-hidden="true"></span>바꿔도 됨(선택)</span></dt>
+        <dd>추천안이 지금 계획과 다르지만 지금 계획도 허용 위험 안일 때입니다. 바꾸면 예상 비용만 줄어듭니다(차이가 1만 원 미만이면 「비용 비슷」). 수소 트럭 안이면 「수소 트럭으로 바꿀 수 있음 — {추천 시각} {도착/출발}({계획 시각} 불가 — 충전·이동 제약) · 비용 {비슷 또는 약 N 적음}」처럼 씁니다. 수소 트럭이 가장 이르게 가능한 시각은 펼친 카드의 엔진 메모에 있습니다.</dd>
+        <dt><span class="m-pill" data-level="good"><span class="m-shape" data-level="good" aria-hidden="true"></span>계획대로 OK</span></dt>
+        <dd>추천안이 지금 계획 그대로일 때입니다. 수소 트럭을 비교할 때 수소 트럭이 전혀 안 되는 화물에는 「수소 트럭은 불가({이유})」 한 줄을 붙입니다.</dd>
+      </dl>
+      <p class="m-sub">할 일 줄은 「오늘 화물 {n}건 — 시간 변경 {a} · 화주 안내 {b} · …」처럼 묶음별 건수를 쓰고, 수소 트럭을 비교하면 「수소 트럭 가능 {n}건 · 불가 {m}건」을 덧붙입니다.</p>
+
+      <h3>펼친 화물 카드</h3>
+      <ul class="m-bullets">
+        <li>놓칠 확률이 반올림해 같은 연속 시각은 한 줄로 묶고, 그 시간대 어느 때나 같은 확률이라고 적습니다(예: 터미널 도착 16:00~21:30, 어느 때나 44%).</li>
+        <li>우선 하역 요청은 선사·터미널 승인이 필요한 협의안이라 자동 추천하지 않고 「승인되면 {p₁} · 안 되면 {p₂}(반반 가정 {p})」로 씁니다.</li>
+        <li>허용 위험과 같은 값으로 반올림되는 확률은 소수 한 자리로 씁니다(예: 9.8%, 10.4%). 「충분」「여유 부족」 같은 판정 문구는 쓰지 않습니다.</li>
+        <li>지금 계획이 공지된 반입 금지 시간에 걸리면 「지금 계획은 반입 금지(18:00~23:30)에 걸려 반입할 수 없습니다」라고 씁니다.</li>
+        <li>마지막 줄은 「최종 도착 예상 {가운데 값}(늦으면 {시각}) · 마감 {마감}」입니다. 지금 계획이 아닌 안의 값이면 앞에 「{시각} {출발/도착} 기준」을 붙입니다.</li>
+      </ul>
+
+      <h3>화주 안내 문구</h3>
+      <ul class="m-bullets">
+        <li>늘 <b>[시연용 가상 데이터 예시]</b>로 시작합니다.</li>
+        <li>사유: 컨테이너 반출이 병목이면 「부산신항 터미널 하역 지연」, 막힌 곳이 신항 터미널이면 「부산신항 터미널 혼잡」, 게이트·도로면 「양산·울산 방면 게이트·도로 혼잡」, 항공이면 「항공 화물터미널 반입 지연」, 막힌 곳이 없고 번지는 중이면 「부산신항 일대 지연 확산」, 그 밖에는 「운영 지연」입니다.</li>
+        <li>예상 도착은 가장 나은 안의 가운데 값을 10분 단위로 반올림하고, 「늦으면」 시각은 10분 단위로 올립니다. 가장 나은 안이 지금 계획이 아니면 괄호 안에 「{시각} {출발/도착} 기준」을 밝힙니다.</li>
+        <li>마감을 맞추지 못할 가능성은 가장 나은 안의 놓칠 확률입니다. 「기준 근처 · 다시 확인」 화물은 계산 용어 없이, 오차를 감안해도 10% 미만이면 「지연 가능성은 낮지만(약 {p}~{오차 감안 값}) 계산이 충분히 확실하지 않아 미리 알려 드립니다」, 그보다 크면 「마감을 맞추지 못할 가능성은 약 {p}~{오차 감안 값}입니다. 계산이 충분히 확실하지 않아 미리 알려 드립니다」라고 씁니다. 놓칠 확률이 1% 미만이면 범위 대신 「{오차 감안 값} 이하」로 씁니다.</li>
+      </ul>
+
+      <h3>기사님 안내</h3>
+      <ul class="m-bullets">
+        <li>부제는 「터미널 도착부터 상하차 끝까지」입니다. 도로·게이트 앞 대기는 들어 있지 않습니다.</li>
+        <li><b>수입 컨테이너 찾으러 갈 때</b>: 컨테이너가 나오는 시각(가운데 값) 이후의 칸 가운데 소요가 가장 짧은 칸과, 그보다 10분 안쪽으로 더 걸리는 칸들의 시간대와 소요를 씁니다.</li>
+        <li><b>수출 넣으러 갈 때</b>: 반입 금지가 공지되면 금지 전 칸 가운데 가장 짧은 칸으로 「{금지 시작} 전 · {시각} 도착이면 약 N」, 금지가 없으면 하루 중 가장 짧은 시간대를 씁니다. 어느 경우든 반입 처리가 길게 걸려도(90% 지점) 마감 안에 끝나는 칸만 권하고, 그런 칸이 없으면 「마감 전 반입 어려움」이라고 씁니다. 마감 안에 끝나는 칸이 모두 가장 짧은 소요와 10분 안이면 「언제 가도 비슷」(늦은 칸이 마감에 걸리면 「{시각}까지 아무 때나」), 하루 내내 비슷한 날에도 늦은 칸이 마감에 걸리면 「{시각}까지 도착」을 씁니다.</li>
+        <li><b>시간대 띠 색</b>: 5분 단위로 반올림한 소요가 60분 이하이면 <span class="m-inline"><span class="m-shape" data-level="good" aria-hidden="true"></span>초록</span>, 120분 이하이면 <span class="m-inline"><span class="m-shape" data-level="warning" aria-hidden="true"></span>노랑</span>, 그보다 길면 <span class="m-inline"><span class="m-shape" data-level="critical" aria-hidden="true"></span>빨강</span>입니다. 하루 내내 비슷하면 중립색으로 칠합니다. 컨테이너가 나오기 전 칸은 소요 색과 글자는 그대로 두고 점선 테두리로만, 반입 금지 칸은 빗금으로 그립니다.</li>
+        <li>게이트·도로가 막힘이나 주의이면 맨 위에 「게이트·도로(양산·울산) 막힘 — 도로·게이트 앞 대기는 이 시간에 빠져 있습니다」를 붙입니다.</li>
+      </ul>
+
+      <h3>믿을 수 있나요? 카드</h3>
+      <ul class="m-bullets">
+        <li>「잘 맞은 점」과 「한계」 두 묶음으로 나눕니다. 마지막 줄 「모두 가상 세계 시험이며 실제 항만 자료로는 아직 검증 전입니다.」는 늘 붙입니다.</li>
+        <li>경보가 운영사 공지 덕분인 장면(공지만 보는 단순 규칙과 첫 경보 시점이 같음)은 경보 줄을 한계로 둡니다. 예: 「가상 장비 고장 상황 60회 시험: 번진 59회 중 53회 경보 — 운영사 공지 덕분(공지를 가리면 판단 시각 번짐 경보는 30회 중 4회뿐)」.</li>
+        <li>현행 방식과의 비교는 잘 맞은 점으로 둡니다: 「현행 방식(도착예정시각+여유 2시간)은 수입 화물 {n}건을 모두 '문제없음'으로 봤지만, R-Delay는 오전 10시에 놓칠 위험 {a}~{b}%를 알렸습니다(시험에서 놓친 비율 {c}~{d}%)」.</li>
+        <li>수출 개선은 한계로 둡니다: 「울산 부품 수출: 출발을 앞당겨 시험에서 놓친 비율 100% → 12% — 공지된 반입 금지만 읽어도 얻는 효과」.</li>
+        <li>수입 화물: 「수입 화물은 컨테이너가 늦게 나와 어느 시각에 가도 예측 위험이 같아 시간 변경을 권하지 않았습니다 — 쓸모는 화주에게 미리 알리는 데 있습니다」.</li>
+        <li>낮게 잡는 경향: 「수입 화물 {n}건 모두 시험 결과가 예측보다 {a}~{b}%p 높았습니다(놓칠 확률을 낮게 잡는 편)」.</li>
+      </ul>
+
+      <h3>숫자 표기</h3>
+      <dl class="m-rule-list">
+        <dt>판단 시각</dt><dd>「가상 판단 시각 10:00(시연 고정) · 실제 운영 땐 2시간마다 갱신」으로 씁니다.</dd>
+        <dt>시각</dt><dd>가운데 값은 10분 단위로 반올림하고, 「늦으면」 시각은 늘 10분 단위로 올립니다(예: 04:44 → 04:50, 02:54 → 03:00). 자정을 넘으면 「내일」을 붙입니다.</dd>
+        <dt>걸리는 시간</dt><dd>5분 단위로 반올림하고 「길면」 쪽은 올립니다. 60분 미만은 「N분」, 그 이상은 「H시간 M분」으로 씁니다.</dd>
+        <dt>확률</dt><dd>정수 %로 씁니다. 1% 미만은 「1% 미만」, 99.5% 이상은 「거의 확실」입니다. 허용 위험과 같은 값으로 반올림되면 소수 한 자리까지 씁니다.</dd>
+        <dt>비용</dt><dd>1만 원 이상은 「약 N만 원」, 1천 원 이상은 「약 N천 원」으로 씁니다.</dd>
+        <dt>지수·배수</dt><dd>번짐 지수는 소수 2자리, 물동량은 「평소의 N배」(소수 1자리), 처리능력은 「평소의 N%」입니다.</dd>
+        <dt>판단 경계</dt><dd>지금 번지는 중일 확률이 35~65%이면 회색 「판단 경계」 표시를 붙이고 원인 판정을 미룹니다. 경보 자체는 50%를 기준으로 냅니다.</dd>
+        <dt>기호</dt><dd>상황판 첫 화면에는 R<sub>d</sub>, ε, p̂, ξ, ESS 같은 기호를 쓰지 않습니다. 기호는 이 페이지와 상황판의 「자세히 보기」에서만 씁니다.</dd>
+      </dl>
+    </section>
+
+    <!-- 5 -->
+    <section id="valid" aria-labelledby="valid-h">
+      <h2 id="valid-h"><span class="m-no">5</span>검증</h2>
+      <p class="m-kicker">합성 세계 60개 × 5개 시나리오</p>
+      <p>시나리오마다 합성 세계 난수만 바꿔 60번 돌리고, 참값을 아는 합성 자료와 대조했습니다(필터 잡음 조정에 쓴 세계와 겹치지 않음). 필터는 참 세계의 구조와 정적 모수를 아는 조건이며, 기준 전파율 β̄만 ±30% 틀리게 준 실험을 따로 보입니다(구조·다른 모수 오지정은 미시험). 실증 성능이 아니며, 실자료 백테스트는 본선·실증 과제입니다.</p>
+      <p class="m-sub">표 머리글은 쉬운 말로 바꿨습니다. 원래 용어는 머리글에 마우스를 올리거나 아래 단추를 누르면 보입니다.</p>
+      <button type="button" class="m-head-toggle" id="head-toggle" aria-pressed="false" hidden>원래 용어로 보기</button>
+
+      <h3 id="val-table-h">표 1. 경보·원인·확률</h3>
+      <div class="table-wrap m-table-wrap" tabindex="0" role="region" aria-labelledby="val-table-h">
+        <table id="val-table" class="m-table" aria-labelledby="val-table-h"><tbody><tr><td class="m-loading">불러오는 중…</td></tr></tbody></table>
+      </div>
+      <p class="m-scroll-hint" aria-hidden="true">표를 옆으로 밀어 나머지 열을 볼 수 있습니다.</p>
+      <p class="m-note" id="val-note"></p>
+
+      <h3 id="val-notice-h">표 2. 경보는 무엇 덕분인가: 공지만 보고 바로 경보하는 규칙·공지를 가린 추정과 비교</h3>
+      <div class="table-wrap m-table-wrap" tabindex="0" role="region" aria-labelledby="val-notice-h">
+        <table id="val-notice-table" class="m-table" aria-labelledby="val-notice-h"><tbody><tr><td class="m-loading">불러오는 중…</td></tr></tbody></table>
+      </div>
+      <p class="m-scroll-hint" aria-hidden="true">표를 옆으로 밀어 나머지 열을 볼 수 있습니다.</p>
+
+      <h3 id="val-misspec-h">표 3. 기준 전파율(β̄)만 틀리게 주면(×1.3 / ×0.7, 세계 20개)</h3>
+      <div class="table-wrap m-table-wrap" tabindex="0" role="region" aria-labelledby="val-misspec-h">
+        <table id="val-misspec-table" class="m-table" aria-labelledby="val-misspec-h"><tbody><tr><td class="m-loading">불러오는 중…</td></tr></tbody></table>
+      </div>
+      <p class="m-scroll-hint" aria-hidden="true">표를 옆으로 밀어 나머지 열을 볼 수 있습니다.</p>
+
+      <h3 id="val-cargo-h">표 4. 화물: 놓칠 확률 예측의 정확도와 배차·안내의 시험 결과</h3>
+      <div class="table-wrap m-table-wrap" tabindex="0" role="region" aria-labelledby="val-cargo-h">
+        <table id="val-cargo-table" class="m-table" aria-labelledby="val-cargo-h"><tbody><tr><td class="m-loading">불러오는 중…</td></tr></tbody></table>
+      </div>
+      <p class="m-scroll-hint" aria-hidden="true">표를 옆으로 밀어 나머지 열을 볼 수 있습니다.</p>
+      <p class="m-note" id="val-cargo-note"></p>
+    </section>
+
+    <!-- 6 -->
+    <section id="ai" aria-labelledby="ai-h">
+      <h2 id="ai-h"><span class="m-no">6</span>AI 보조 모듈</h2>
+      <p class="m-plain">AI(f<sub>ω</sub>)는 날씨·장비 상태로 지연이 번지는 속도의 기본값만 추정합니다. 표의 앞 네 열은 각 요인이 그 기본값(로그 전파율 평균)을 얼마나 올리거나 내리는지 나타내는 계수입니다.</p>
+      <div id="ai-info" class="m-ai-info"><p class="m-loading">불러오는 중…</p></div>
+    </section>
+
+    <!-- 7 -->
+    <section id="limits" aria-labelledby="limits-h">
+      <h2 id="limits-h"><span class="m-no">7</span>한계</h2>
+      <p>좋은 결과와 함께 아래 한계를 같은 무게로 읽어 주세요. 숫자는 5절 표와 저장소 README의 검증 결과와 같습니다.</p>
+
+      <h3>자료와 검증 조건</h3>
+      <ul class="m-limits">
+        <li><b>합성 데이터입니다.</b> 실데이터는 아직 연동하지 않았고, 검증은 계산 엔진이 가상 세계의 구조와 고정 모수를 아는 조건에서 했습니다. 실제 항만 자료로는 아직 검증 전입니다.</li>
+        <li><b>기준 전파율을 틀리게 주면 크게 흔들립니다.</b> 기준 전파율을 0.7배로 잘못 주면 장비 고장 장면 20개 세계 중 7개에서 번짐 경보를 놓쳤습니다. 1.3배로 주면 다른 장면에서 헛경보가 늘었습니다(표 3).</li>
+      </ul>
+
+      <h3>경보</h3>
+      <ul class="m-limits">
+        <li><b>장비 고장 경보는 운영사 공지 덕분입니다.</b> 장비 고장 장면의 첫 경보 선행시간은 4.5시간으로, 공지가 오면 바로 경보하는 단순 규칙과 같았습니다. 공지를 가리면 판단 시각(10:00)에 번짐 경보가 울린 세계는 30개 중 4개뿐이었습니다. 판단 시각까지 24시간 동안 관측만으로 울린 첫 경보(번짐 또는 적체)는 적체가 시작된 뒤 약 3시간(가운데 값)이었고, 4개 세계는 판단 시각까지 경보가 없었습니다(이 4개는 적체가 판단 3~3.5시간 전에 시작).</li>
+        <li><b>물량 충격(태풍·명절)에서는 경보가 거의 앞서지 않습니다.</b> 공지가 없는 물량 충격의 첫 경보 선행시간(가운데 값)은 −0.3~1.0시간(명절 −0.3시간, 태풍 1.0시간)입니다. 명절 장면에서는 보통 적체가 시작된 뒤에 경보가 울렸습니다.</li>
+        <li><b>물량·인력 충격에서는 번지는 지연을 자주 놓칩니다.</b> 판단 시각에 시험에서 지연이 번지고 있던 세계 가운데 번짐 경보를 낸 경우는 태풍 7/20, 명절 3/12, 감염병 1/11입니다(표 1).</li>
+        <li><b>감염병 장면의 놓침은 공지되지 않은 생산성 저하 때문입니다.</b> 가상 세계에는 공지되지 않은 생산성 저하 10%가 있지만, 필터는 공지된 출근율 75%만 알고 이 저하는 모릅니다. 이렇게 공지되지 않은 충격은 관측만으로는 늦게, 또는 끝내 잡히지 않습니다.</li>
+      </ul>
+
+      <h3>원인 판정</h3>
+      <ul class="m-limits">
+        <li><b>원인을 가려야 하는 세계에서 맞힌 비율은 낮습니다.</b> 시험의 정답 원인별로 맞힌 횟수는 물량형 태풍 2/20·명절 2/12, 처리능력형 감염병 0/11입니다(장비 고장 처리능력형은 44/59). 대부분 「번짐 경계」로 보류되거나 「번지지 않음」으로 판정됐고, 표 1의 원인 정확도는 대부분 「번지지 않음」끼리 맞은 경우에서 나옵니다.</li>
+        <li><b>원인 판정은 모형 계산상 배분입니다.</b> 책임 소재 판단에 쓰지 않습니다.</li>
+      </ul>
+
+      <h3>번짐 지수와 확률</h3>
+      <ul class="m-limits">
+        <li><b>장비 고장 장면에서는 번짐 지수를 낮게 잡습니다.</b> 판단 시각의 예상 범위(80%)가 정답을 담은 비율이 65%(목표 80%)이고, 평균 0.23만큼 낮게 추정했습니다.</li>
+        <li><b>일부 상황에서는 번질 확률이 단순 기준보다 못합니다.</b> 지금 번지는 중일 확률 P(R<sub>d</sub>&gt;1)의 Brier 기술점수가 명절 −0.04, 평시 −0.55입니다. 0보다 작으면 그 상황의 평균 비율을 늘 그대로 말하는 것보다 못하다는 뜻입니다. 평시 값은 시험에서 번진 비율이 0.5%뿐이라 불안정합니다.</li>
+      </ul>
+
+      <h3>화물 판단</h3>
+      <ul class="m-limits">
+        <li><b>같은 사건 안에서 누가 놓칠지는 잘 가르지 못합니다.</b> 화물 예측 점수(같은 상황 평균 대비)는 0.02~0.05, 예측과 시험 결과의 상관은 −0.02~0.30으로 작습니다(README 화물 표 6행 기준). 표 4의 16행 전체 기준으로는 0.01~0.05, −0.04~0.30입니다. 예측이 시험 결과보다 낮은 경향도 있습니다(표 4).</li>
+        <li><b>장비 고장 장면의 수입 화물에는 시간 변경을 권하지 않았습니다.</b> 수입 화물은 컨테이너가 늦게 나와 어느 시각에 가도 예측 위험이 같아 R-Delay가 시간 변경을 권하지 않았습니다(60회 중 0회 변경) — 쓸모는 화주에게 미리 알리는 데 있습니다. 그래서 표 4의 「판단대로 했을 때」 값은 지금 계획의 시험 결과와 같습니다(양산 공장 53.3%).</li>
+        <li><b>수출 화물의 개선은 단순 규칙으로도 얻을 수 있습니다.</b> 장비 고장 장면 울산 부품 수출은 R-Delay 판단대로 하면(60회 중 90%는 출발을 앞당김) 시험에서 놓친 비율이 100%에서 11.7%로 줄었지만, 이는 공지된 반입 제한을 출발 시각에 반영한 결과라 「공지 규칙 + 출발 앞당기기」로도 얻을 수 있습니다. 11.7%에는 「추정 불확실」로 지금 계획을 유지한 세계 10%가 들어 있습니다.</li>
+        <li><b>명절 Sea&amp;Air에서는 추천한 앞당김이 도움이 되지 않았습니다.</b> 60회 중 58%에서 시간을 바꾸도록 추천했지만, 시험에서 놓친 비율은 10%에서 10%로 같았고 차량 체류만 0.2시간 늘었습니다.</li>
+        <li><b>명절 울산 라인의 화주 안내는 대부분 필요 없었습니다.</b> 계산이 불확실한 경우까지 보수적으로 안내해 놓친 4건은 모두 안내했지만, 안내의 89%는 놓치지 않은 경우였습니다(안내가 맞은 비율 11%).</li>
+        <li><b>같은 차량을 여러 화물에 겹쳐 배정했는지는 확인하지 않습니다.</b> 화물마다 따로 평가하므로 차량 대수 제약도 반영하지 않습니다.</li>
+      </ul>
+
+      <h3>아직 확인하지 않은 부분</h3>
+      <ul class="m-limits">
+        <li><b>기사님 안내의 소요 시간은 실제 게이트 기록으로 검증하지 않았습니다.</b> 터미널 A(가상)만 계산하며, 실증에서는 VBS 예약·게이트 반출입 기록으로 보정할 계획입니다.</li>
+        <li><b>항공 반입 거점의 관측은 아직 확보하지 않았습니다.</b> 항공 거점 관련 설정은 실제 관측으로 확인하지 않은 사전 가정입니다.</li>
+        <li><b>화면 문구 규칙(4절)은 표시 방식입니다.</b> 엔진 출력을 문장으로 옮기는 규칙이며, 그 자체를 검증한 것은 아닙니다.</li>
+      </ul>
+    </section>
+
+    <!-- 8 -->
+    <section id="sources" aria-labelledby="sources-h">
+      <h2 id="sources-h"><span class="m-no">8</span>선행연구와 출처</h2>
+      <h3>선행연구와의 관계</h3>
+      <p>[P1] 「A mobility-informed SIR model for regional transmission dynamics: Evidence from subway mobility data in Korea, 2016–2023」(한국자료분석학회지 최종원고, 공동 제1저자 연구). 이동량 보정 계수 ξ의 구조, 이동 기여·고유 전파 분리, 입자필터·평활 비교를 이어받았습니다. 논문은 인플루엔자·지하철 자료 연구이며, 물류 적용, 후행 창 실시간화, 결합행렬·R<sub>d</sub>·선석 대기열·배차 결정은 이 프로젝트에서 새로 만든 부분입니다.</p>
+      <h3>방법론 문헌</h3>
+      <p class="m-sub">MODEL.md의 참고문헌 목록과 같습니다.</p>
+      <ul class="refs m-refs">
+        <li>Diekmann, Heesterbeek &amp; Roberts (2010). The construction of next-generation matrices for compartmental epidemic models. <i>J. R. Soc. Interface</i> 7, 873–885.</li>
+        <li>Caswell (2001). <i>Matrix Population Models</i>, 2nd ed. (Perron 탄력성)</li>
+        <li>Gordon, Salmond &amp; Smith (1993). Novel approach to nonlinear/non-Gaussian Bayesian state estimation. <i>IEE Proc. F</i> 140, 107–113. (부트스트랩 입자필터)</li>
+        <li>Grassmann (1977). Transient solutions in Markovian queueing systems. <i>Comput. Oper. Res.</i> 4, 47–53. (균일화)</li>
+        <li>Ionides, Nguyen, Atchadé, Stoev &amp; King (2015). Inference for dynamic and latent variable models via iterated, perturbed Bayes maps. <i>PNAS</i> 112, 719–724. (IF2, 본선 전 정적 모수 추정 계획)</li>
+      </ul>
+      <h3>문제 정의에 쓴 공개 보도</h3>
+      <ol class="refs m-refs">
+        <li>연합뉴스(2026-09-05) 신항 터미널 장비 보수 기간 화물차 대기 장기화 보도</li>
+        <li>데일리로그(2026-07~10) 신항 터미널 시스템 오류·셧다운, 운송업계 대기·게이트 통보 문제 연속 보도</li>
+        <li>파이낸셜뉴스 영문판(2026-09-04) 한국해양진흥공사 특별보고서: 항만 간 혼잡 전이</li>
+        <li>노컷뉴스(2022-06-09) 화물연대 파업 중 부품 납품 차질로 울산 완성차 공장 가동·중단 반복(JIT 민감도 근거)</li>
+        <li>이투데이(2024-07-14) 한국무역협회 573개사 설문: 반입 제한·일정 변동 추가비용</li>
+      </ol>
+      <p>링크와 인용 범위는 저장소 README의 출처 표를 따릅니다.</p>
+      <p class="m-links"><a href="https://github.com/shinshinjae/R-Delay#출처">README 출처 표 →</a> <a href="https://github.com/shinshinjae/R-Delay">GitHub 저장소 →</a> <a href="https://github.com/shinshinjae/R-Delay/blob/main/MODEL.md">MODEL.md →</a></p>
+    </section>
+  </main>
+</div>
+
+<footer class="m-foot">
+  <div class="m-foot-in">
+    <p>R-Delay · 2026 동남권 멀티도메인 모빌리티 비즈니스 해커톤(개인부문) 출품작 · MIT License · <a href="https://github.com/shinshinjae/R-Delay">GitHub</a></p>
+    <p>의사결정 지원용 시연입니다. 배차·통보의 최종 판단과 책임은 사용자에게 있으며, 원인 판정은 모형상 배분으로 책임 소재 판단에 쓰지 않습니다.</p>
+    <p><a href="index.html">← 상황판으로</a> · <a href="#main">맨 위로 ↑</a></p>
+  </div>
+</footer>
+<noscript><p class="m-error">검증 표는 JavaScript가 필요합니다. 수식은 TeX 원문으로 보입니다.</p></noscript>
+</body>
+</html>

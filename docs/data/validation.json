@@ -1,0 +1,1062 @@
+{
+ "description": "합성 세계 다중 검증(시나리오별 world 난수만 바꿈). 필터는 참 세계의 구조·정적 모수를 안다(오지정 실험 별도). 실증 성능이 아니다.",
+ "worlds": 60,
+ "world_seeds": [
+  2000,
+  2059
+ ],
+ "estimation_seed": 20261108,
+ "baselines": {
+  "always_zero": "도착예정시각 + 고정 여유 2시간(공지 미반영, 여유가 있으면 실패 0)",
+  "notice_eta": "공지 반영 도착예정시각 + 고정 여유 2시간",
+  "climatology": "같은 시나리오 다른 세계들의 실현 실패율",
+  "notice_rule": "운영자 처리능력 공지·장비 고장 신호가 들어오면 즉시 경보"
+ },
+ "false_alarm_window_h": 12.0,
+ "params": {
+  "filter_sigma_mult": 1.3,
+  "rejuvenate_sd": 0.1,
+  "particles": 512
+ },
+ "misspec_note": "기준 전파율 beta_bar만 모든 거점에 같은 배율로 바꿨다(구조·다른 모수 오지정은 시험하지 않음).",
+ "elapsed_s": 50.3,
+ "scenarios": {
+  "base": {
+   "label": "평시",
+   "worlds": 60,
+   "spread_alarm": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "tn": 60
+   },
+   "cause_confusion": {
+    "비확산": {
+     "비확산": 60,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "물량 주도형": {
+     "비확산": 0,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "처리능력형": {
+     "비확산": 0,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    }
+   },
+   "hold_spread": 0,
+   "hold_cause": 0,
+   "cause_accuracy_decided": 1.0,
+   "label_precision": {
+    "물량 주도형": null,
+    "처리능력형": null
+   },
+   "label_recall": {
+    "물량 주도형": null,
+    "처리능력형": null
+   },
+   "brier_notice_rule": null,
+   "brier_skill_notice_rule": null,
+   "brier_skill_masked": null,
+   "masked_no_alarm": null,
+   "lead_time_h": {
+    "n": 0,
+    "median": null,
+    "q25": null,
+    "q75": null
+   },
+   "lead_time_notice_rule_h": null,
+   "lead_time_masked_h": null,
+   "masked_alarm_tp_fn": null,
+   "masked_worlds": 0,
+   "events": 0,
+   "missed": 0,
+   "alarms": 0,
+   "false_alarms": 0,
+   "brier_p_spread": 0.0084,
+   "brier_climatology": 0.0054,
+   "brier_skill": -0.553,
+   "truth_spread_rate": 0.0054,
+   "coverage_80_mean": 0.888,
+   "coverage_80_last6h": 0.871,
+   "coverage_80_now": 0.933,
+   "bias_now_mean": 0.027,
+   "rmse_filter_mean": 0.093,
+   "rmse_smooth_mean": 0.073,
+   "rmse_filter_ai_off_mean": 0.099,
+   "rmse_filter_ai_on_same_worlds": 0.092,
+   "ai_off_worlds": 20,
+   "misspec": {
+    "beta_bar_x1.3": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      0,
+      1,
+      0
+     ],
+     "coverage_80": 0.528,
+     "inside_now": 0.55,
+     "rmse_filter": 0.17,
+     "lead": {
+      "n": 0,
+      "median": null,
+      "q25": null,
+      "q75": null
+     }
+    },
+    "beta_bar_x0.7": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      0,
+      0,
+      0
+     ],
+     "coverage_80": 0.566,
+     "inside_now": 0.6,
+     "rmse_filter": 0.144,
+     "lead": {
+      "n": 0,
+      "median": null,
+      "q25": null,
+      "q75": null
+     }
+    }
+   },
+   "ess_median": 188.3,
+   "cargo": {
+    "import_factory": {
+     "predicted_fail_plan": 0.015,
+     "realized_fail_plan": 0.033,
+     "realized_fail_rdelay": 0.033,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.967,
+     "uncertain_share": 0.033,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": 0.0,
+     "brier_model": 0.0325,
+     "brier_always_zero": 0.0333,
+     "brier_notice_eta": 0.0333,
+     "brier_climatology": 0.0333,
+     "skill_vs_always_zero": 0.025,
+     "skill_vs_notice_eta": 0.025,
+     "skill_vs_climatology": 0.025,
+     "corr_pred_realized": 0.072
+    },
+    "ulsan_parts": {
+     "predicted_fail_plan": 0.014,
+     "realized_fail_plan": 0.033,
+     "realized_fail_rdelay": 0.033,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.933,
+     "uncertain_share": 0.05,
+     "notice_share": 0.017,
+     "conservative_share": 0.017,
+     "notice_precision": 0.0,
+     "notice_recall": 0.0,
+     "brier_model": 0.0325,
+     "brier_always_zero": 0.0333,
+     "brier_notice_eta": 0.0333,
+     "brier_climatology": 0.0333,
+     "skill_vs_always_zero": 0.024,
+     "skill_vs_notice_eta": 0.024,
+     "skill_vs_climatology": 0.024,
+     "corr_pred_realized": 0.092
+    },
+    "sea_air": {
+     "predicted_fail_plan": 0.022,
+     "realized_fail_plan": 0.05,
+     "realized_fail_rdelay": 0.05,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.967,
+     "uncertain_share": 0.033,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": 0.0,
+     "brier_model": 0.0482,
+     "brier_always_zero": 0.05,
+     "brier_notice_eta": 0.05,
+     "brier_climatology": 0.0491,
+     "skill_vs_always_zero": 0.035,
+     "skill_vs_notice_eta": 0.035,
+     "skill_vs_climatology": 0.018,
+     "corr_pred_realized": 0.049
+    },
+    "ulsan_export": {
+     "predicted_fail_plan": 0.0,
+     "realized_fail_plan": 0.0,
+     "realized_fail_rdelay": 0.0,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.967,
+     "uncertain_share": 0.033,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": null,
+     "brier_model": 0.0,
+     "brier_always_zero": 0.0,
+     "brier_notice_eta": 0.0,
+     "brier_climatology": 0.0,
+     "skill_vs_always_zero": null,
+     "skill_vs_notice_eta": null,
+     "skill_vs_climatology": null,
+     "corr_pred_realized": null
+    }
+   }
+  },
+  "terminal_failure": {
+   "label": "자동화 터미널 장비 고장(가상)",
+   "worlds": 60,
+   "spread_alarm": {
+    "tp": 53,
+    "fp": 1,
+    "fn": 6,
+    "tn": 0
+   },
+   "cause_confusion": {
+    "비확산": {
+     "비확산": 0,
+     "확산 경계": 1,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "물량 주도형": {
+     "비확산": 0,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "처리능력형": {
+     "비확산": 0,
+     "확산 경계": 15,
+     "물량 주도형": 0,
+     "처리능력형": 44,
+     "원인 보류": 0
+    }
+   },
+   "hold_spread": 16,
+   "hold_cause": 0,
+   "cause_accuracy_decided": 1.0,
+   "label_precision": {
+    "물량 주도형": null,
+    "처리능력형": [
+     44,
+     44
+    ]
+   },
+   "label_recall": {
+    "물량 주도형": null,
+    "처리능력형": [
+     44,
+     59
+    ]
+   },
+   "brier_notice_rule": 0.0133,
+   "brier_skill_notice_rule": 0.944,
+   "brier_skill_masked": -0.214,
+   "masked_no_alarm": 4,
+   "lead_time_h": {
+    "n": 60,
+    "median": 4.5,
+    "q25": 3.5,
+    "q75": 5.0
+   },
+   "lead_time_notice_rule_h": {
+    "n": 60,
+    "median": 4.5,
+    "q25": 3.5,
+    "q75": 5.0
+   },
+   "lead_time_masked_h": {
+    "n": 26,
+    "median": -3.0,
+    "q25": -4.0,
+    "q75": -1.62
+   },
+   "masked_alarm_tp_fn": [
+    4,
+    26
+   ],
+   "masked_worlds": 30,
+   "events": 60,
+   "missed": 0,
+   "alarms": 60,
+   "false_alarms": 0,
+   "brier_p_spread": 0.0309,
+   "brier_climatology": 0.2362,
+   "brier_skill": 0.869,
+   "truth_spread_rate": 0.3827,
+   "coverage_80_mean": 0.792,
+   "coverage_80_last6h": 0.552,
+   "coverage_80_now": 0.65,
+   "bias_now_mean": -0.231,
+   "rmse_filter_mean": 0.233,
+   "rmse_smooth_mean": 0.151,
+   "rmse_filter_ai_off_mean": 0.241,
+   "rmse_filter_ai_on_same_worlds": 0.217,
+   "ai_off_worlds": 20,
+   "misspec": {
+    "beta_bar_x1.3": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      20,
+      0,
+      0
+     ],
+     "coverage_80": 0.687,
+     "inside_now": 0.9,
+     "rmse_filter": 0.196,
+     "lead": {
+      "n": 20,
+      "median": 17.5,
+      "q25": 17.5,
+      "q75": 18.5
+     }
+    },
+    "beta_bar_x0.7": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      13,
+      0,
+      7
+     ],
+     "coverage_80": 0.403,
+     "inside_now": 0.4,
+     "rmse_filter": 0.337,
+     "lead": {
+      "n": 20,
+      "median": 1.0,
+      "q25": -0.12,
+      "q75": 3.12
+     }
+    }
+   },
+   "ess_median": 136.4,
+   "cargo": {
+    "import_factory": {
+     "predicted_fail_plan": 0.445,
+     "realized_fail_plan": 0.533,
+     "realized_fail_rdelay": 0.533,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.533,
+     "notice_recall": 1.0,
+     "brier_model": 0.252,
+     "brier_always_zero": 0.5333,
+     "brier_notice_eta": 0.5333,
+     "brier_climatology": 0.2574,
+     "skill_vs_always_zero": 0.528,
+     "skill_vs_notice_eta": 0.528,
+     "skill_vs_climatology": 0.021,
+     "corr_pred_realized": 0.163
+    },
+    "ulsan_parts": {
+     "predicted_fail_plan": 0.428,
+     "realized_fail_plan": 0.517,
+     "realized_fail_rdelay": 0.517,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.517,
+     "notice_recall": 1.0,
+     "brier_model": 0.2545,
+     "brier_always_zero": 0.5167,
+     "brier_notice_eta": 0.5167,
+     "brier_climatology": 0.2583,
+     "skill_vs_always_zero": 0.507,
+     "skill_vs_notice_eta": 0.507,
+     "skill_vs_climatology": 0.014,
+     "corr_pred_realized": 0.124
+    },
+    "sea_air": {
+     "predicted_fail_plan": 0.518,
+     "realized_fail_plan": 0.617,
+     "realized_fail_rdelay": 0.617,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.617,
+     "notice_recall": 1.0,
+     "brier_model": 0.2425,
+     "brier_always_zero": 0.6167,
+     "brier_notice_eta": 0.6167,
+     "brier_climatology": 0.2445,
+     "skill_vs_always_zero": 0.607,
+     "skill_vs_notice_eta": 0.607,
+     "skill_vs_climatology": 0.008,
+     "corr_pred_realized": 0.141
+    },
+    "ulsan_export": {
+     "predicted_fail_plan": 1.0,
+     "realized_fail_plan": 1.0,
+     "realized_fail_rdelay": 0.117,
+     "changed_share": 0.9,
+     "realized_stay_change_h": -1.33,
+     "recommended_share": 0.9,
+     "uncertain_share": 0.1,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": 0.0,
+     "brier_model": 0.0,
+     "brier_always_zero": 1.0,
+     "brier_notice_eta": 0.0,
+     "brier_climatology": 0.0,
+     "skill_vs_always_zero": 1.0,
+     "skill_vs_notice_eta": null,
+     "skill_vs_climatology": null,
+     "corr_pred_realized": null
+    }
+   }
+  },
+  "typhoon_diversion": {
+   "label": "북중국 태풍 우회 물량",
+   "worlds": 60,
+   "spread_alarm": {
+    "tp": 7,
+    "fp": 7,
+    "fn": 13,
+    "tn": 33
+   },
+   "cause_confusion": {
+    "비확산": {
+     "비확산": 19,
+     "확산 경계": 20,
+     "물량 주도형": 1,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "물량 주도형": {
+     "비확산": 6,
+     "확산 경계": 12,
+     "물량 주도형": 2,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "처리능력형": {
+     "비확산": 0,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    }
+   },
+   "hold_spread": 32,
+   "hold_cause": 0,
+   "cause_accuracy_decided": 0.75,
+   "label_precision": {
+    "물량 주도형": [
+     2,
+     3
+    ],
+    "처리능력형": null
+   },
+   "label_recall": {
+    "물량 주도형": [
+     2,
+     20
+    ],
+    "처리능력형": null
+   },
+   "brier_notice_rule": null,
+   "brier_skill_notice_rule": null,
+   "brier_skill_masked": null,
+   "masked_no_alarm": null,
+   "lead_time_h": {
+    "n": 22,
+    "median": 1.0,
+    "q25": -0.88,
+    "q75": 2.0
+   },
+   "lead_time_notice_rule_h": null,
+   "lead_time_masked_h": null,
+   "masked_alarm_tp_fn": null,
+   "masked_worlds": 0,
+   "events": 24,
+   "missed": 2,
+   "alarms": 42,
+   "false_alarms": 0,
+   "brier_p_spread": 0.086,
+   "brier_climatology": 0.0935,
+   "brier_skill": 0.081,
+   "truth_spread_rate": 0.1044,
+   "coverage_80_mean": 0.896,
+   "coverage_80_last6h": 0.909,
+   "coverage_80_now": 0.917,
+   "bias_now_mean": 0.007,
+   "rmse_filter_mean": 0.103,
+   "rmse_smooth_mean": 0.083,
+   "rmse_filter_ai_off_mean": 0.101,
+   "rmse_filter_ai_on_same_worlds": 0.1,
+   "ai_off_worlds": 20,
+   "misspec": {
+    "beta_bar_x1.3": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      5,
+      9,
+      2
+     ],
+     "coverage_80": 0.625,
+     "inside_now": 0.7,
+     "rmse_filter": 0.174,
+     "lead": {
+      "n": 9,
+      "median": 20.0,
+      "q25": 18.0,
+      "q75": 21.0
+     }
+    },
+    "beta_bar_x0.7": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      0,
+      0,
+      7
+     ],
+     "coverage_80": 0.572,
+     "inside_now": 0.6,
+     "rmse_filter": 0.163,
+     "lead": {
+      "n": 4,
+      "median": -1.0,
+      "q25": -3.75,
+      "q75": 3.75
+     }
+    }
+   },
+   "ess_median": 158.9,
+   "cargo": {
+    "import_factory": {
+     "predicted_fail_plan": 0.197,
+     "realized_fail_plan": 0.2,
+     "realized_fail_rdelay": 0.2,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.2,
+     "notice_recall": 1.0,
+     "brier_model": 0.1612,
+     "brier_always_zero": 0.2,
+     "brier_notice_eta": 0.2,
+     "brier_climatology": 0.1655,
+     "skill_vs_always_zero": 0.194,
+     "skill_vs_notice_eta": 0.194,
+     "skill_vs_climatology": 0.026,
+     "corr_pred_realized": -0.04
+    },
+    "ulsan_parts": {
+     "predicted_fail_plan": 0.187,
+     "realized_fail_plan": 0.183,
+     "realized_fail_rdelay": 0.183,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.183,
+     "notice_recall": 1.0,
+     "brier_model": 0.1508,
+     "brier_always_zero": 0.1833,
+     "brier_notice_eta": 0.1833,
+     "brier_climatology": 0.1548,
+     "skill_vs_always_zero": 0.178,
+     "skill_vs_notice_eta": 0.178,
+     "skill_vs_climatology": 0.026,
+     "corr_pred_realized": -0.036
+    },
+    "sea_air": {
+     "predicted_fail_plan": 0.249,
+     "realized_fail_plan": 0.233,
+     "realized_fail_rdelay": 0.233,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.233,
+     "notice_recall": 1.0,
+     "brier_model": 0.1803,
+     "brier_always_zero": 0.2333,
+     "brier_notice_eta": 0.2333,
+     "brier_climatology": 0.185,
+     "skill_vs_always_zero": 0.227,
+     "skill_vs_notice_eta": 0.227,
+     "skill_vs_climatology": 0.025,
+     "corr_pred_realized": -0.023
+    },
+    "ulsan_export": {
+     "predicted_fail_plan": 0.0,
+     "realized_fail_plan": 0.0,
+     "realized_fail_rdelay": 0.0,
+     "changed_share": 0.017,
+     "realized_stay_change_h": -0.01,
+     "recommended_share": 1.0,
+     "uncertain_share": 0.0,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": null,
+     "brier_model": 0.0,
+     "brier_always_zero": 0.0,
+     "brier_notice_eta": 0.0,
+     "brier_climatology": 0.0,
+     "skill_vs_always_zero": null,
+     "skill_vs_notice_eta": null,
+     "skill_vs_climatology": null,
+     "corr_pred_realized": null
+    }
+   }
+  },
+  "holiday_surge": {
+   "label": "명절 전 물량 급증",
+   "worlds": 60,
+   "spread_alarm": {
+    "tp": 3,
+    "fp": 5,
+    "fn": 9,
+    "tn": 43
+   },
+   "cause_confusion": {
+    "비확산": {
+     "비확산": 31,
+     "확산 경계": 16,
+     "물량 주도형": 1,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "물량 주도형": {
+     "비확산": 2,
+     "확산 경계": 8,
+     "물량 주도형": 2,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "처리능력형": {
+     "비확산": 0,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    }
+   },
+   "hold_spread": 24,
+   "hold_cause": 0,
+   "cause_accuracy_decided": 0.917,
+   "label_precision": {
+    "물량 주도형": [
+     2,
+     3
+    ],
+    "처리능력형": null
+   },
+   "label_recall": {
+    "물량 주도형": [
+     2,
+     12
+    ],
+    "처리능력형": null
+   },
+   "brier_notice_rule": null,
+   "brier_skill_notice_rule": null,
+   "brier_skill_masked": null,
+   "masked_no_alarm": null,
+   "lead_time_h": {
+    "n": 44,
+    "median": -0.25,
+    "q25": -2.0,
+    "q75": 1.12
+   },
+   "lead_time_notice_rule_h": null,
+   "lead_time_masked_h": null,
+   "masked_alarm_tp_fn": null,
+   "masked_worlds": 0,
+   "events": 45,
+   "missed": 1,
+   "alarms": 51,
+   "false_alarms": 1,
+   "brier_p_spread": 0.0856,
+   "brier_climatology": 0.0823,
+   "brier_skill": -0.04,
+   "truth_spread_rate": 0.0905,
+   "coverage_80_mean": 0.896,
+   "coverage_80_last6h": 0.896,
+   "coverage_80_now": 0.917,
+   "bias_now_mean": 0.023,
+   "rmse_filter_mean": 0.101,
+   "rmse_smooth_mean": 0.082,
+   "rmse_filter_ai_off_mean": 0.105,
+   "rmse_filter_ai_on_same_worlds": 0.099,
+   "ai_off_worlds": 20,
+   "misspec": {
+    "beta_bar_x1.3": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      2,
+      14,
+      0
+     ],
+     "coverage_80": 0.58,
+     "inside_now": 0.7,
+     "rmse_filter": 0.172,
+     "lead": {
+      "n": 14,
+      "median": 16.5,
+      "q25": 13.5,
+      "q75": 18.88
+     }
+    },
+    "beta_bar_x0.7": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      0,
+      0,
+      2
+     ],
+     "coverage_80": 0.623,
+     "inside_now": 0.7,
+     "rmse_filter": 0.15,
+     "lead": {
+      "n": 11,
+      "median": -2.0,
+      "q25": -3.0,
+      "q75": 1.0
+     }
+    }
+   },
+   "ess_median": 149.8,
+   "cargo": {
+    "import_factory": {
+     "predicted_fail_plan": 0.038,
+     "realized_fail_plan": 0.067,
+     "realized_fail_rdelay": 0.067,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.983,
+     "uncertain_share": 0.017,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": 0.0,
+     "brier_model": 0.0623,
+     "brier_always_zero": 0.0667,
+     "brier_notice_eta": 0.0667,
+     "brier_climatology": 0.0643,
+     "skill_vs_always_zero": 0.065,
+     "skill_vs_notice_eta": 0.065,
+     "skill_vs_climatology": 0.031,
+     "corr_pred_realized": 0.225
+    },
+    "ulsan_parts": {
+     "predicted_fail_plan": 0.036,
+     "realized_fail_plan": 0.067,
+     "realized_fail_rdelay": 0.067,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.167,
+     "uncertain_share": 0.25,
+     "notice_share": 0.583,
+     "conservative_share": 0.533,
+     "notice_precision": 0.114,
+     "notice_recall": 1.0,
+     "brier_model": 0.0624,
+     "brier_always_zero": 0.0667,
+     "brier_notice_eta": 0.0667,
+     "brier_climatology": 0.0643,
+     "skill_vs_always_zero": 0.064,
+     "skill_vs_notice_eta": 0.064,
+     "skill_vs_climatology": 0.03,
+     "corr_pred_realized": 0.261
+    },
+    "sea_air": {
+     "predicted_fail_plan": 0.086,
+     "realized_fail_plan": 0.1,
+     "realized_fail_rdelay": 0.1,
+     "changed_share": 0.583,
+     "realized_stay_change_h": 0.23,
+     "recommended_share": 0.617,
+     "uncertain_share": 0.217,
+     "notice_share": 0.167,
+     "conservative_share": 0.167,
+     "notice_precision": 0.2,
+     "notice_recall": 0.333,
+     "brier_model": 0.0881,
+     "brier_always_zero": 0.1,
+     "brier_notice_eta": 0.1,
+     "brier_climatology": 0.0931,
+     "skill_vs_always_zero": 0.119,
+     "skill_vs_notice_eta": 0.119,
+     "skill_vs_climatology": 0.053,
+     "corr_pred_realized": 0.298
+    },
+    "ulsan_export": {
+     "predicted_fail_plan": 0.0,
+     "realized_fail_plan": 0.0,
+     "realized_fail_rdelay": 0.0,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.983,
+     "uncertain_share": 0.017,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": null,
+     "brier_model": 0.0,
+     "brier_always_zero": 0.0,
+     "brier_notice_eta": 0.0,
+     "brier_climatology": 0.0,
+     "skill_vs_always_zero": null,
+     "skill_vs_notice_eta": null,
+     "skill_vs_climatology": null,
+     "corr_pred_realized": null
+    }
+   }
+  },
+  "epidemic": {
+   "label": "감염병 검역·인력 결근",
+   "worlds": 60,
+   "spread_alarm": {
+    "tp": 1,
+    "fp": 0,
+    "fn": 10,
+    "tn": 49
+   },
+   "cause_confusion": {
+    "비확산": {
+     "비확산": 43,
+     "확산 경계": 6,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "물량 주도형": {
+     "비확산": 0,
+     "확산 경계": 0,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    },
+    "처리능력형": {
+     "비확산": 8,
+     "확산 경계": 3,
+     "물량 주도형": 0,
+     "처리능력형": 0,
+     "원인 보류": 0
+    }
+   },
+   "hold_spread": 9,
+   "hold_cause": 0,
+   "cause_accuracy_decided": 0.843,
+   "label_precision": {
+    "물량 주도형": null,
+    "처리능력형": null
+   },
+   "label_recall": {
+    "물량 주도형": null,
+    "처리능력형": [
+     0,
+     11
+    ]
+   },
+   "brier_notice_rule": 0.4,
+   "brier_skill_notice_rule": -1.01,
+   "brier_skill_masked": -0.199,
+   "masked_no_alarm": 10,
+   "lead_time_h": {
+    "n": 56,
+    "median": 2.0,
+    "q25": -1.5,
+    "q75": 3.62
+   },
+   "lead_time_notice_rule_h": {
+    "n": 57,
+    "median": 5.5,
+    "q25": 4.0,
+    "q75": 9.5
+   },
+   "lead_time_masked_h": {
+    "n": 20,
+    "median": -5.0,
+    "q25": -5.62,
+    "q75": -3.25
+   },
+   "masked_alarm_tp_fn": [
+    0,
+    6
+   ],
+   "masked_worlds": 30,
+   "events": 57,
+   "missed": 1,
+   "alarms": 59,
+   "false_alarms": 0,
+   "brier_p_spread": 0.1497,
+   "brier_climatology": 0.199,
+   "brier_skill": 0.248,
+   "truth_spread_rate": 0.2741,
+   "coverage_80_mean": 0.893,
+   "coverage_80_last6h": 0.907,
+   "coverage_80_now": 0.9,
+   "bias_now_mean": -0.004,
+   "rmse_filter_mean": 0.108,
+   "rmse_smooth_mean": 0.096,
+   "rmse_filter_ai_off_mean": 0.111,
+   "rmse_filter_ai_on_same_worlds": 0.111,
+   "ai_off_worlds": 20,
+   "misspec": {
+    "beta_bar_x1.3": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      2,
+      4,
+      2
+     ],
+     "coverage_80": 0.694,
+     "inside_now": 0.75,
+     "rmse_filter": 0.156,
+     "lead": {
+      "n": 19,
+      "median": 12.5,
+      "q25": 11.25,
+      "q75": 15.25
+     }
+    },
+    "beta_bar_x0.7": {
+     "worlds": 20,
+     "alarm_tp_fp_fn": [
+      0,
+      0,
+      4
+     ],
+     "coverage_80": 0.486,
+     "inside_now": 0.65,
+     "rmse_filter": 0.199,
+     "lead": {
+      "n": 18,
+      "median": -2.75,
+      "q25": -5.38,
+      "q75": -1.62
+     }
+    }
+   },
+   "ess_median": 170.5,
+   "cargo": {
+    "import_factory": {
+     "predicted_fail_plan": 0.252,
+     "realized_fail_plan": 0.3,
+     "realized_fail_rdelay": 0.3,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.3,
+     "notice_recall": 1.0,
+     "brier_model": 0.2082,
+     "brier_always_zero": 0.3,
+     "brier_notice_eta": 0.3,
+     "brier_climatology": 0.2172,
+     "skill_vs_always_zero": 0.306,
+     "skill_vs_notice_eta": 0.306,
+     "skill_vs_climatology": 0.041,
+     "corr_pred_realized": 0.222
+    },
+    "ulsan_parts": {
+     "predicted_fail_plan": 0.244,
+     "realized_fail_plan": 0.267,
+     "realized_fail_rdelay": 0.267,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.267,
+     "notice_recall": 1.0,
+     "brier_model": 0.192,
+     "brier_always_zero": 0.2667,
+     "brier_notice_eta": 0.2667,
+     "brier_climatology": 0.2022,
+     "skill_vs_always_zero": 0.28,
+     "skill_vs_notice_eta": 0.28,
+     "skill_vs_climatology": 0.051,
+     "corr_pred_realized": 0.239
+    },
+    "sea_air": {
+     "predicted_fail_plan": 0.318,
+     "realized_fail_plan": 0.333,
+     "realized_fail_rdelay": 0.333,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 0.0,
+     "uncertain_share": 0.0,
+     "notice_share": 1.0,
+     "conservative_share": 0.0,
+     "notice_precision": 0.333,
+     "notice_recall": 1.0,
+     "brier_model": 0.2195,
+     "brier_always_zero": 0.3333,
+     "brier_notice_eta": 0.3333,
+     "brier_climatology": 0.2298,
+     "skill_vs_always_zero": 0.341,
+     "skill_vs_notice_eta": 0.341,
+     "skill_vs_climatology": 0.045,
+     "corr_pred_realized": 0.149
+    },
+    "ulsan_export": {
+     "predicted_fail_plan": 0.0,
+     "realized_fail_plan": 0.0,
+     "realized_fail_rdelay": 0.0,
+     "changed_share": 0.0,
+     "realized_stay_change_h": null,
+     "recommended_share": 1.0,
+     "uncertain_share": 0.0,
+     "notice_share": 0.0,
+     "conservative_share": 0.0,
+     "notice_precision": null,
+     "notice_recall": null,
+     "brier_model": 0.0,
+     "brier_always_zero": 0.0,
+     "brier_notice_eta": 0.0,
+     "brier_climatology": 0.0,
+     "skill_vs_always_zero": null,
+     "skill_vs_notice_eta": null,
+     "skill_vs_climatology": null,
+     "corr_pred_realized": null
+    }
+   }
+  }
+ }
+}

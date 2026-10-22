@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 3.12: 브라우저(Pyodide 0.27)와 같은 Python, 3.13: 최신
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: python -m pip install -r requirements.txt
+      - name: Engine tests
+        run: python -m pytest -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Display rule tests
+        run: node --test tests/*.test.mjs
+      - name: Asset versions (?v= and sw.js V)
+        run: node scripts/check-assets.mjs
+      - name: Web files present
+        run: |
+          for f in docs/index.html docs/sw.js docs/data/precomputed.json docs/data/ai_model.json \
+                   docs/assets/js/app.js docs/assets/js/charts.js docs/assets/js/engine-worker.js \
+                   docs/assets/js/format.js docs/assets/js/derive.js docs/method.html docs/assets/js/method.js \
+                   docs/assets/js/validation-tables.js docs/assets/css/method.css; do
+            test -s "$f" || { echo "missing $f"; exit 1; }
+          done
+          python -c "import json; json.load(open('docs/data/precomputed.json'))"
