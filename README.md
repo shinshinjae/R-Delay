@@ -386,7 +386,7 @@ R-Delay/
 ## 팀
 
 | 이름 | 이메일 |
-
+|---|---|
 |신재완|sjw6258@g.kmou.ac.kr|
 
 |명정효|karl0126@naver.com|
