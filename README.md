@@ -271,18 +271,16 @@ $\hat p$는 판단 시각의 가중 입자(재표본추출 전)를 그대로 예
 3. 특정 장면은 주소로 바로 엽니다: `?s=<시나리오>&c=<화물>` (예: `?s=terminal_failure&c=ulsan_export`). 시나리오: `base`, `terminal_failure`, `typhoon_diversion`, `holiday_surge`, `epidemic`, `h2_trucks` / 화물: `import_factory`, `ulsan_parts`, `sea_air`, `ulsan_export`. 고급 설정: `eps=ulsan_parts:0.03`, `cost=ulsan_parts:500`(만원), `h2=1`(수소 비교), `world=7`, `seed=7`, `n=1024`, `kappa=1.5`.
 4. 코드가 바뀌면 **Actions** 탭의 CI가 테스트를 돌리고, Pages는 `main` 브랜치의 `docs/` 폴더를 다시 배포합니다(1~2분). 배포 직후에도 엔진·데이터 파일은 서버에 다시 확인해 받으므로 옛 파일과 섞이지 않습니다.
 
-### 저장소 올리기와 Pages 켜기(관리자용)
+### GitHub Pages 활성화(관리자용)
 
 ```bash
 cd R-Delay
-git init -b main
-git add .
-git commit -m "R-Delay: 연쇄지연 조기경보·배차결정 웹 시연(합성 개념검증)"
-gh repo create R-Delay --public --source=. --push
-gh api -X POST "repos/{owner}/{repo}/pages" -f "source[branch]=main" -f "source[path]=/docs"
+gh api -X POST "repos/{owner}/{repo}/pages" \
+  -f "source[branch]=main" \
+  -f "source[path]=/docs"
 ```
 
-웹에서 할 때: 저장소 **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, 폴더: `/docs` → Save**. 예선 시점 스냅샷은 Release 태그로 남깁니다(태그 이름은 계획서 표기와 맞춤).
+웹에서 할 때: 저장소 **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, 폴더: `/docs` → Save**.
 
 ## 로컬 실행·테스트·재생성
 
