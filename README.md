@@ -280,8 +280,6 @@ gh api -X POST "repos/{owner}/{repo}/pages" \
   -f "source[path]=/docs"
 ```
 
-웹에서 할 때: 저장소 **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, 폴더: `/docs` → Save**.
-
 ## 로컬 실행·테스트·재생성
 
 ```bash
