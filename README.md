@@ -220,7 +220,7 @@ $f_\omega$는 60일 합성 이력에서 입자 평활 사후평균을 레이블�
 **⑤ 기회제약 배차 결정**(배차안 $a$ = 시각, 동력원):
 
 $$
-a^\star=\arg\min_{a\in\mathcal A_{\mathrm{feas}},\ \hat p^{+}_q(a)\le\varepsilon}\{c_a+c_w\,\mathbb E[W_q(a)]+c_f\,\hat p_q(a)\},\qquad \hat p^{+}=\max(\hat p+z_{0.95}\sqrt{\hat p(1-\hat p)/\mathrm{ESS}},\ 1-0.05^{1/\mathrm{ESS}})
+a^\star=\arg\min_{a\in\mathcal A_{\mathrm{feas}},\ \hat p^{+}_q(a)\le\varepsilon} {c_a+c_w\,\mathbb E[W_q(a)]+c_f\,\hat p_q(a)\},\qquad \hat p^{+}=\max(\hat p+z_{0.95}\sqrt{\hat p(1-\hat p)/\mathrm{ESS}},\ 1-0.05^{1/\mathrm{ESS}})
 $$
 
 
