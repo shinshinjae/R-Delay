@@ -388,11 +388,11 @@ R-Delay/
 | 이름 | 이메일 |
 |---|---|
 |신재완|sjw6258@g.kmou.ac.kr|
-
+|---|---|
 |명정효|karl0126@naver.com|
-
+|---|---|
 |김진현|jinh7205@naver.com|
-
+|---|---|
 |김태훈|kth060420@gmail.com|
 
 
