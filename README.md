@@ -223,17 +223,6 @@ $$
 a^\star=\arg\min_{a\in\mathcal A_{\mathrm{feas}},\ \hat p^{+}_q(a)\le\varepsilon}\{c_a+c_w\,\mathbb E[W_q(a)]+c_f\,\hat p_q(a)\},\qquad \hat p^{+}=\max(\hat p+z_{0.95}\sqrt{\hat p(1-\hat p)/\mathrm{ESS}},\ 1-0.05^{1/\mathrm{ESS}})
 $$
 
-$$
-a^\star = \arg\min_{a \in \mathcal{A}_{\mathrm{feas}},\ \hat{p}^{+}_q(a) \le \varepsilon}
-\left\{
-c_a + c_w\,\mathbb{E}[W_q(a)] + c_f\,\hat{p}_q(a)
-\right\},
-\qquad
-\hat{p}^{+} = \max\left(
-\hat{p} + z_{0.95}\sqrt{\frac{\hat{p}(1-\hat{p})}{\mathrm{ESS}}},
-\ 1-0.05^{1/\mathrm{ESS}}
-\right)
-$$
 
 $\hat p$는 판단 시각의 가중 입자(재표본추출 전)를 그대로 예측 구간으로 보낸 가중 추정입니다. 상한은 계획서 식에 0건 경계 보정(3/n 규칙)을 더한 모형 안의 몬테카를로 오차 상한이며 모수·모형 오차는 포함하지 않습니다.
 
