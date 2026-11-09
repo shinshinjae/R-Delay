@@ -8,10 +8,10 @@
   <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261023c">
-  <link rel="stylesheet" href="assets/css/method.css?v=20261023c">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261109a">
+  <link rel="stylesheet" href="assets/css/method.css?v=20261109a">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <script type="module" src="assets/js/method.js?v=20261023c"></script>
+  <script type="module" src="assets/js/method.js?v=20261109a"></script>
 </head>
 <body class="m-page">
 <a class="m-skip" href="#main">본문으로 건너뛰기</a>
@@ -24,11 +24,11 @@
       <details class="m-about" id="about">
         <summary class="m-badge" aria-label="시연용 가상 데이터 안내 열기">ⓘ 시연용 가상 데이터</summary>
         <div class="m-about-body" role="note">
-          <p><b>합성 데이터 개념검증(TRL 3 수준)입니다.</b> 실데이터는 아직 연동하지 않았습니다. 화면의 수치는 공개 보도로 확인한 사건 유형(장비 고장, 우회 물량, 명절 물량, 인력 결근)을 본뜬 합성 자료로 계산했으며, 특정 터미널·기업의 자료나 판정이 아닙니다(터미널 이름은 가상). 판단은 의사결정 지원용이고 최종 결정과 책임은 사용자에게 있습니다.</p>
+          <p><b>합성 데이터 개념검증(TRL 3 수준)입니다.</b> 화면은 실데이터와 연결하지 않았습니다. 공개 실자료 후향 검증(실시간 운영 검증 아님) 결과는 <a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">기술 보고서(REPORT.md)</a>에 따로 있습니다. 화면의 수치는 공개 보도로 확인한 사건 유형(장비 고장, 우회 물량, 명절 물량, 인력 결근)을 본뜬 합성 자료로 계산했으며, 특정 터미널·기업의 자료나 판정이 아닙니다(터미널 이름은 가상). 판단은 의사결정 지원용이고 최종 결정과 책임은 사용자에게 있습니다.</p>
         </div>
       </details>
     </div>
-    <p class="m-notice">이 페이지의 검증 표는 기본 조건으로 만든 합성 세계 결과입니다. 상황판에서 조건을 바꿔 다시 계산한 값은 상황판의 '자세히 보기'에서 보세요.</p>
+    <p class="m-notice">이 페이지의 검증 표는 기본 조건으로 만든 합성 세계 결과입니다. 실제 공개 자료로 되돌려 본 결과는 <a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">기술 보고서(REPORT.md)</a>에 따로 있습니다. 상황판에서 조건을 바꿔 다시 계산한 값은 상황판의 '자세히 보기'에서 보세요.</p>
   </div>
 </header>
 
@@ -45,6 +45,7 @@
       <li><a href="#limits">한계</a></li>
       <li><a href="#sources">선행연구와 출처</a></li>
     </ol>
+    <p class="m-toc-back"><a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">실자료 검증 결과(기술 보고서) →</a></p>
     <p class="m-toc-back"><a href="index.html">← 상황판으로</a></p>
   </nav>
 
@@ -61,6 +62,7 @@
         <li><a href="#limits">한계</a></li>
         <li><a href="#sources">선행연구와 출처</a></li>
       </ol>
+      <p class="m-toc-back"><a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">실자료 검증 결과(기술 보고서) →</a></p>
     </nav>
   </details>
 
@@ -80,11 +82,11 @@
 
       <h3>3분 시연 순서</h3>
       <ol class="m-steps">
-        <li><b>장비 고장</b> — 상황판을 열면 기본 상황인 「장비 고장」이 보입니다. <a href="index.html?s=terminal_failure">장비 고장 상황 열기 →</a></li>
+        <li><b>장비 고장</b> — 분석 화면을 열면 기본 상황인 「장비 고장」이 보입니다. <a href="analysis.html?s=terminal_failure">분석 화면에서 장비 고장 상황 열기 →</a></li>
         <li><b>배너</b> — 맨 위 배너에서 지금 상태, 원인, 전망, 오늘 할 일을 한 번에 읽습니다.</li>
         <li><b>화물 카드 복사</b> — 「화주 안내 필요」 카드에서 [안내 문구 복사]를 눌러 화주에게 보낼 문장을 받습니다.</li>
         <li><b>상황 칩 바꾸기</b> — 태풍 우회 물량, 명절 물량 같은 다른 상황을 눌러 판단이 어떻게 달라지는지 봅니다.</li>
-        <li><b>기사님 안내</b> — 몇 시에 터미널에 가면 덜 기다리는지 확인합니다. <a href="index.html?s=terminal_failure#driver">기사님 안내 열기 →</a></li>
+        <li><b>기사님 안내</b> — 몇 시에 터미널에 가면 덜 기다리는지 확인합니다. <a href="analysis.html?s=terminal_failure#driver">분석 화면의 기사님 안내 열기 →</a></li>
       </ol>
     </section>
 
@@ -217,7 +219,7 @@
         <dt><span class="m-pill" data-level="good"><span class="m-shape" data-level="good" aria-hidden="true"></span>계획대로 OK</span></dt>
         <dd>추천안이 지금 계획 그대로일 때입니다. 수소 트럭을 비교할 때 수소 트럭이 전혀 안 되는 화물에는 「수소 트럭은 불가({이유})」 한 줄을 붙입니다.</dd>
       </dl>
-      <p class="m-sub">할 일 줄은 「오늘 화물 {n}건 — 시간 변경 {a} · 화주 안내 {b} · …」처럼 묶음별 건수를 쓰고, 수소 트럭을 비교하면 「수소 트럭 가능 {n}건 · 불가 {m}건」을 덧붙입니다.</p>
+      <p class="m-sub">할 일 줄은 「오늘 관리 화물 {n}건 — 시간 변경 {a} · 화주 안내 {b} · …」처럼 묶음별 건수를 쓰고, 수소 트럭을 비교하면 「수소 트럭 가능 {n}건 · 불가 {m}건」을 덧붙입니다.</p>
 
       <h3>펼친 화물 카드</h3>
       <ul class="m-bullets">
@@ -247,7 +249,7 @@
 
       <h3>믿을 수 있나요? 카드</h3>
       <ul class="m-bullets">
-        <li>「잘 맞은 점」과 「한계」 두 묶음으로 나눕니다. 마지막 줄 「모두 가상 세계 시험이며 실제 항만 자료로는 아직 검증 전입니다.」는 늘 붙입니다.</li>
+        <li>「잘 맞은 점」과 「한계」 두 묶음으로 나눕니다. 마지막 줄 「모두 가상 세계 시험입니다. 실제 공개 자료로 되돌려 본 결과는 기술 보고서(REPORT.md)에 따로 있습니다.」는 늘 붙입니다.</li>
         <li>경보가 운영사 공지 덕분인 장면(공지만 보는 단순 규칙과 첫 경보 시점이 같음)은 경보 줄을 한계로 둡니다. 예: 「가상 장비 고장 상황 60회 시험: 번진 59회 중 53회 경보 — 운영사 공지 덕분(공지를 가리면 판단 시각 번짐 경보는 30회 중 4회뿐)」.</li>
         <li>현행 방식과의 비교는 잘 맞은 점으로 둡니다: 「현행 방식(도착예정시각+여유 2시간)은 수입 화물 {n}건을 모두 '문제없음'으로 봤지만, R-Delay는 오전 10시에 놓칠 위험 {a}~{b}%를 알렸습니다(시험에서 놓친 비율 {c}~{d}%)」.</li>
         <li>수출 개선은 한계로 둡니다: 「울산 부품 수출: 출발을 앞당겨 시험에서 놓친 비율 100% → 12% — 공지된 반입 금지만 읽어도 얻는 효과」.</li>
@@ -272,7 +274,8 @@
     <section id="valid" aria-labelledby="valid-h">
       <h2 id="valid-h"><span class="m-no">5</span>검증</h2>
       <p class="m-kicker">합성 세계 60개 × 5개 시나리오</p>
-      <p>시나리오마다 합성 세계 난수만 바꿔 60번 돌리고, 참값을 아는 합성 자료와 대조했습니다(필터 잡음 조정에 쓴 세계와 겹치지 않음). 필터는 참 세계의 구조와 정적 모수를 아는 조건이며, 기준 전파율 β̄만 ±30% 틀리게 준 실험을 따로 보입니다(구조·다른 모수 오지정은 미시험). 실증 성능이 아니며, 실자료 백테스트는 본선·실증 과제입니다.</p>
+      <p class="m-callout"><b>표 1~4는 모두 합성 세계 시험입니다.</b> 실제 공개 자료로 되돌려 본 결과는 <a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">기술 보고서(REPORT.md)</a>에 따로 있습니다. 공개 실자료 후향 검증(실시간 운영 검증 아님)의 평가 기간(2025-07-01~2026-10-29)에 앞으로 24시간 안에 12시간 넘게 기다릴 배가 올지 맞힌 정도(PR-AUC)는 R-Delay 0.407, 지속성 0.387, 기후값 0.291이었습니다(아무 정보 없이 찍으면 0.292). R-Delay는 기후값보다 확실히 낫지만, 지금 정박지 대기만 보는 지속성과는 차이가 없습니다. 숫자 출처: 저장소 REPORT.md.</p>
+      <p>시나리오마다 합성 세계 난수만 바꿔 60번 돌리고, 참값을 아는 합성 자료와 대조했습니다(필터 잡음 조정에 쓴 세계와 겹치지 않음). 필터는 참 세계의 구조와 정적 모수를 아는 조건이며, 기준 전파율 β̄만 ±30% 틀리게 준 실험을 따로 보입니다(구조·다른 모수 오지정은 미시험). 실증 성능이 아니며, 실시간 운영 검증은 아직 하지 않았습니다.</p>
       <p class="m-sub">표 머리글은 쉬운 말로 바꿨습니다. 원래 용어는 머리글에 마우스를 올리거나 아래 단추를 누르면 보입니다.</p>
       <button type="button" class="m-head-toggle" id="head-toggle" aria-pressed="false" hidden>원래 용어로 보기</button>
 
@@ -308,16 +311,18 @@
       <h2 id="ai-h"><span class="m-no">6</span>AI 보조 모듈</h2>
       <p class="m-plain">AI(f<sub>ω</sub>)는 날씨·장비 상태로 지연이 번지는 속도의 기본값만 추정합니다. 표의 앞 네 열은 각 요인이 그 기본값(로그 전파율 평균)을 얼마나 올리거나 내리는지 나타내는 계수입니다.</p>
       <div id="ai-info" class="m-ai-info"><p class="m-loading">불러오는 중…</p></div>
+      <p class="m-sub">실제 공개 자료로 다시 학습한 f<sub>ω</sub>는 검증 기간 설명력(R²)이 −0.007로 0 이하라, 실자료 검증에서는 AI를 껐습니다(숫자 출처: 저장소 REPORT.md).</p>
     </section>
 
     <!-- 7 -->
     <section id="limits" aria-labelledby="limits-h">
       <h2 id="limits-h"><span class="m-no">7</span>한계</h2>
-      <p>좋은 결과와 함께 아래 한계를 같은 무게로 읽어 주세요. 숫자는 5절 표와 저장소 README의 검증 결과와 같습니다.</p>
+      <p>좋은 결과와 함께 아래 한계를 같은 무게로 읽어 주세요. 숫자는 5절 표와 저장소 REPORT.md의 검증 결과와 같고, 실자료 숫자는 REPORT.md의 <a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">실자료 백테스트 절</a>에서 옮겼습니다.</p>
 
       <h3>자료와 검증 조건</h3>
       <ul class="m-limits">
-        <li><b>합성 데이터입니다.</b> 실데이터는 아직 연동하지 않았고, 검증은 계산 엔진이 가상 세계의 구조와 고정 모수를 아는 조건에서 했습니다. 실제 항만 자료로는 아직 검증 전입니다.</li>
+        <li><b>상황판은 합성 데이터입니다.</b> 화면은 실데이터와 연결하지 않았고, 5절 검증은 계산 엔진이 가상 세계의 구조와 고정 모수를 아는 조건에서 했습니다.</li>
+        <li><b>실제 공개 자료에서는 지금 정박지 대기만 보는 단순 기준과 차이가 없었습니다.</b> 공개 실자료 후향 검증(실시간 운영 검증 아님)에서 R-Delay 점수는 기후값보다는 확실히 나았습니다. 경보가 울리면 맞을 확률(경보 비율 10%에서 정밀도)은 0.55로 비교한 모형 중 가장 높았지만, 대기 에피소드 81개 중 63개는 시작 전 72시간 안에 경보가 없었습니다. 스케줄 기준선에 R-Delay 상태를 더하면 조금 나아졌습니다(PR-AUC 차이 95% 구간 +0.003~+0.066). 앱의 확산 경보 P(R<sub>d</sub>&gt;1) ≥ 0.5는 실자료에서 한 번도 울리지 않았습니다(평가 기간 R<sub>d</sub> 중앙값 0.22, 최대 0.35, P(R<sub>d</sub>&gt;1) 최대 0.0019). 자세한 결과는 <a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">기술 보고서(REPORT.md)</a>에 있습니다.</li>
         <li><b>기준 전파율을 틀리게 주면 크게 흔들립니다.</b> 기준 전파율을 0.7배로 잘못 주면 장비 고장 장면 20개 세계 중 7개에서 번짐 경보를 놓쳤습니다. 1.3배로 주면 다른 장면에서 헛경보가 늘었습니다(표 3).</li>
       </ul>
 
@@ -343,7 +348,7 @@
 
       <h3>화물 판단</h3>
       <ul class="m-limits">
-        <li><b>같은 사건 안에서 누가 놓칠지는 잘 가르지 못합니다.</b> 화물 예측 점수(같은 상황 평균 대비)는 0.02~0.05, 예측과 시험 결과의 상관은 −0.02~0.30으로 작습니다(README 화물 표 6행 기준). 표 4의 16행 전체 기준으로는 0.01~0.05, −0.04~0.30입니다. 예측이 시험 결과보다 낮은 경향도 있습니다(표 4).</li>
+        <li><b>같은 사건 안에서 누가 놓칠지는 잘 가르지 못합니다.</b> 화물 예측 점수(같은 상황 평균 대비)는 0.02~0.05, 예측과 시험 결과의 상관은 −0.02~0.30으로 작습니다(저장소 REPORT.md 화물 표 6행 기준). 표 4의 16행 전체 기준으로는 0.01~0.05, −0.04~0.30입니다. 예측이 시험 결과보다 낮은 경향도 있습니다(표 4).</li>
         <li><b>장비 고장 장면의 수입 화물에는 시간 변경을 권하지 않았습니다.</b> 수입 화물은 컨테이너가 늦게 나와 어느 시각에 가도 예측 위험이 같아 R-Delay가 시간 변경을 권하지 않았습니다(60회 중 0회 변경) — 쓸모는 화주에게 미리 알리는 데 있습니다. 그래서 표 4의 「판단대로 했을 때」 값은 지금 계획의 시험 결과와 같습니다(양산 공장 53.3%).</li>
         <li><b>수출 화물의 개선은 단순 규칙으로도 얻을 수 있습니다.</b> 장비 고장 장면 울산 부품 수출은 R-Delay 판단대로 하면(60회 중 90%는 출발을 앞당김) 시험에서 놓친 비율이 100%에서 11.7%로 줄었지만, 이는 공지된 반입 제한을 출발 시각에 반영한 결과라 「공지 규칙 + 출발 앞당기기」로도 얻을 수 있습니다. 11.7%에는 「추정 불확실」로 지금 계획을 유지한 세계 10%가 들어 있습니다.</li>
         <li><b>명절 Sea&amp;Air에서는 추천한 앞당김이 도움이 되지 않았습니다.</b> 60회 중 58%에서 시간을 바꾸도록 추천했지만, 시험에서 놓친 비율은 10%에서 10%로 같았고 차량 체류만 0.2시간 늘었습니다.</li>
@@ -355,6 +360,7 @@
       <ul class="m-limits">
         <li><b>기사님 안내의 소요 시간은 실제 게이트 기록으로 검증하지 않았습니다.</b> 터미널 A(가상)만 계산하며, 실증에서는 VBS 예약·게이트 반출입 기록으로 보정할 계획입니다.</li>
         <li><b>항공 반입 거점의 관측은 아직 확보하지 않았습니다.</b> 항공 거점 관련 설정은 실제 관측으로 확인하지 않은 사전 가정입니다.</li>
+        <li><b>태풍 상황은 실자료로 검증하지 못했습니다.</b> 평가 기간에 신항에 가장 가까이 온 태풍도 370km 밖이었고, 500km 안에 있던 동안 부산 풍속은 최대 4.4m/s, 거제도 유의파고는 최대 0.8m였습니다.</li>
         <li><b>화면 문구 규칙(4절)은 표시 방식입니다.</b> 엔진 출력을 문장으로 옮기는 규칙이며, 그 자체를 검증한 것은 아닙니다.</li>
       </ul>
     </section>
@@ -371,7 +377,7 @@
         <li>Caswell (2001). <i>Matrix Population Models</i>, 2nd ed. (Perron 탄력성)</li>
         <li>Gordon, Salmond &amp; Smith (1993). Novel approach to nonlinear/non-Gaussian Bayesian state estimation. <i>IEE Proc. F</i> 140, 107–113. (부트스트랩 입자필터)</li>
         <li>Grassmann (1977). Transient solutions in Markovian queueing systems. <i>Comput. Oper. Res.</i> 4, 47–53. (균일화)</li>
-        <li>Ionides, Nguyen, Atchadé, Stoev &amp; King (2015). Inference for dynamic and latent variable models via iterated, perturbed Bayes maps. <i>PNAS</i> 112, 719–724. (IF2, 본선 전 정적 모수 추정 계획)</li>
+        <li>Ionides, Nguyen, Atchadé, Stoev &amp; King (2015). Inference for dynamic and latent variable models via iterated, perturbed Bayes maps. <i>PNAS</i> 112, 719–724. (IF2. 계획서의 정적 모수 추정 방법이지만 하지 못했고, 실자료 검증은 학습 기간 빠른 보정을 씀 — MODEL.md 11절)</li>
       </ul>
       <h3>문제 정의에 쓴 공개 보도</h3>
       <ol class="refs m-refs">
@@ -381,8 +387,20 @@
         <li>노컷뉴스(2022-06-09) 화물연대 파업 중 부품 납품 차질로 울산 완성차 공장 가동·중단 반복(JIT 민감도 근거)</li>
         <li>이투데이(2024-07-14) 한국무역협회 573개사 설문: 반입 제한·일정 변동 추가비용</li>
       </ol>
-      <p>링크와 인용 범위는 저장소 README의 출처 표를 따릅니다.</p>
-      <p class="m-links"><a href="https://github.com/shinshinjae/R-Delay#출처">README 출처 표 →</a> <a href="https://github.com/shinshinjae/R-Delay">GitHub 저장소 →</a> <a href="https://github.com/shinshinjae/R-Delay/blob/main/MODEL.md">MODEL.md →</a></p>
+      <p>링크와 인용 범위는 저장소 REPORT.md의 출처 표를 따릅니다.</p>
+      <h3>실자료 백테스트에 쓴 공개 자료</h3>
+      <p class="m-sub"><a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#검증-실제-공개-자료-백테스트">실자료 검증 결과</a>의 숫자를 만든 자료입니다. 목록은 REPORT.md의 출처 절과 같습니다.</p>
+      <ol class="refs m-refs">
+        <li>해양수산부, <a href="https://www.data.go.kr/data/15006354/openapi.do">PORT-MIS 관제정보(입항·투묘·접안·이안·출항 이벤트)</a>, 공공데이터포털, ID 15006354 — 정답(선박 대기) 라벨, 해상층 관측</li>
+        <li>해양수산부, <a href="https://www.data.go.kr/data/15006353/openapi.do">PORT-MIS 선박운항정보(입출항 신고)</a>, 공공데이터포털, ID 15006353 — 자료 점검(신고 시각이 없어 예측에는 안 씀)</li>
+        <li>부산항만공사, <a href="https://www.data.go.kr/data/15150637/fileData.do">선박 입출항 집계·외내항 집계·컨테이너 수송통계</a>, 공공데이터포털, ID 15150637 등 — 자료 점검(라벨 교차 확인)</li>
+        <li>해양수산부, <a href="https://www.data.go.kr/data/15151750/fileData.do">수출입 물류 플랫폼(적시선박·선석 일정 등)</a>, 공공데이터포털, ID 15151750 등 — 자료 점검(표본 자료라 백테스트에는 안 씀)</li>
+        <li>기상청, <a href="https://data.kma.go.kr">종관기상관측(ASOS) 시간자료·해양기상부이</a>, 기상자료개방포털(공공누리 출처표시) — 기상 특징(풍속·파고), 사례 그림</li>
+        <li>기상청, <a href="https://www.data.go.kr/data/15043568/fileData.do">태풍경로·태풍목록</a>, 공공데이터포털(공공누리 출처표시), ID 15043568 · 15043569 — 태풍 근접 특징, 태풍 사례</li>
+        <li>한국도로공사, <a href="http://data.ex.co.kr">노선별 방향별 1시간 구간통행속도(신항 배후 고속도로)</a>, 고속도로 공공데이터 포털, ID 15043737 — 육상층 관측(혼잡 콘존)</li>
+      </ol>
+      <p class="m-sub">기상청 자료는 공공누리 출처표시 조건으로 이용했으며, 출처는 기상청입니다. 원자료, 가공 자료, 결과 파일과 그림은 저장소에 넣지 않았습니다. 실자료 결과는 REPORT.md에 부산신항 전체 집계값으로 요약했습니다(선박 이름·호출부호·터미널 없음).</p>
+      <p class="m-links"><a href="https://github.com/shinshinjae/R-Delay/blob/main/REPORT.md#출처">출처 표(REPORT.md) →</a> <a href="https://github.com/shinshinjae/R-Delay">GitHub 저장소 →</a> <a href="https://github.com/shinshinjae/R-Delay/blob/main/MODEL.md">MODEL.md →</a></p>
     </section>
   </main>
 </div>

@@ -4,7 +4,7 @@
 import {
   NODE_NAME, SCENARIO_CHIP, CARGO_SHORT, clock, clock10, clock10ceil, fmtDur, fmtDurCeil, fmtDurRange, fmtP, fmtWon, fmtRd,
   fmtRatio, fmtCap, nextUpdateText, hourLabel,
-} from "./format.js?v=20261023c";
+} from "./format.js?v=20261109a";
 
 export const LEVEL_OF_ALARM = { "정상": "good", "적체 경보": "warning", "확산 경보": "serious", "확산·적체 경보": "critical" };
 
@@ -357,12 +357,12 @@ export function todoView(run) {
   const okLike = counts.ok + counts.optional;
   let text;
   if (okLike === n) {
-    text = `오늘 화물 ${n}건 모두 계획대로 진행 가능`;
+    text = `오늘 관리 화물 ${n}건 모두 계획대로 진행 가능`;
   } else {
     const items = [["change", "시간 변경"], ["notify", "화주 안내"], ["hold-conservative", "다시 확인"], ["hold-uncertain", "판단 보류"]]
       .filter(([c]) => counts[c]).map(([c, w]) => `${w} ${counts[c]}`);
     if (okLike) items.push(`계획대로 ${okLike}`);
-    text = `오늘 화물 ${n}건 — ${items.join(" · ")}`;
+    text = `오늘 관리 화물 ${n}건 — ${items.join(" · ")}`;
   }
   if (run.meta.h2) {
     const info = keys.map((k) => h2Info(run.cargo[k])).filter(Boolean);
@@ -698,7 +698,7 @@ export function trustLines(valid, run) {
       limits.push(`${who} 시험 결과가 예측보다 ${range(gaps)}%p 높았습니다(놓칠 확률을 낮게 잡는 편)`);
     }
   }
-  limits.push("모두 가상 세계 시험이며 실제 항만 자료로는 아직 검증 전입니다.");
+  limits.push("모두 가상 세계 시험입니다. 실제 공개 자료로 되돌려 본 결과는 기술 보고서(REPORT.md)에 따로 있습니다.");
   const lim = limits.length > 6 ? [...limits.slice(0, 5), limits[limits.length - 1]] : limits;
   return { good: good.slice(0, 3), limits: lim };
 }

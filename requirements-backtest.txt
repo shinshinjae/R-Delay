@@ -1,0 +1,8 @@
+# 실자료 백테스트 전용(웹앱용 requirements.txt와 분리). python -m pip install -r requirements.txt -r requirements-backtest.txt
+pandas>=2.2
+pyarrow>=16
+scikit-learn>=1.5
+scipy>=1.13
+matplotlib>=3.8
+holidays>=0.50
+openpyxl>=3.1

@@ -13,15 +13,15 @@ jobs:
         # 3.12: 브라우저(Pyodide 0.27)와 같은 Python, 3.13: 최신
         python-version: ["3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install
         run: python -m pip install -r requirements.txt
-      - name: Engine tests
+      - name: Engine tests + no-data guard (tests/test_no_data_in_repo.py)
         run: python -m pytest -q
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Display rule tests
@@ -30,10 +30,41 @@ jobs:
         run: node scripts/check-assets.mjs
       - name: Web files present
         run: |
-          for f in docs/index.html docs/sw.js docs/data/precomputed.json docs/data/ai_model.json \
+          for f in docs/index.html docs/analysis.html docs/driver.html docs/manifest.webmanifest docs/assets/js/board.js docs/assets/js/briefing.js docs/assets/js/driver.js docs/assets/css/board.css docs/sw.js docs/data/precomputed.json docs/data/ai_model.json \
                    docs/assets/js/app.js docs/assets/js/charts.js docs/assets/js/engine-worker.js \
                    docs/assets/js/format.js docs/assets/js/derive.js docs/method.html docs/assets/js/method.js \
                    docs/assets/js/validation-tables.js docs/assets/css/method.css; do
             test -s "$f" || { echo "missing $f"; exit 1; }
           done
           python -c "import json; json.load(open('docs/data/precomputed.json'))"
+
+  backtest:
+    # 실자료 백테스트 코드: 작은 가짜 자료로만 시험한다(원자료·캐시·결과 파일은 공개 저장소에 없음, realdata 파이프라인은 돌리지 않음)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install
+        run: python -m pip install -r requirements.txt -r requirements-backtest.txt
+      - name: Backtest packages import
+        run: python -c "import pandas, pyarrow, sklearn, scipy, holidays, matplotlib"
+      - name: Real-data modules compile and import (no data)
+        run: |
+          python -m compileall -q realdata scripts
+          MPLBACKEND=Agg python -c "import importlib, pkgutil, realdata; [importlib.import_module('realdata.' + m.name) for m in pkgutil.iter_modules(realdata.__path__)]"
+      - name: Backtest unit tests (no real data)
+        run: MPLBACKEND=Agg python -m pytest -q -rs tests/test_realdata_features.py tests/test_realdata_units.py
+
+  data-kit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -r data-kit/requirements.txt
+      - name: Data kit self-test (mock servers, no network)
+        run: python data-kit/selftest.py

@@ -1,0 +1,20 @@
+{
+  "name": "R-Delay 포워더 브리핑",
+  "short_name": "R-Delay",
+  "description": "부산신항 지연이 번지기 전에 고객 화물의 반출입 시각을 정하고 화주 안내·운송사 배차 요청 문서를 만들어 주는 중소 포워더 화면(시연용 가상 데이터)",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef2f5",
+  "theme_color": "#0e2238",
+  "icons": [
+    { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/img/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "기사님 화면", "url": "./driver.html?s=terminal_failure&c=import_factory" }
+  ]
+}

@@ -124,16 +124,20 @@ def observe(truth, inp, p, rng):
 
 
 def particle_filter(inp, obs_idx, Y, Hs, p, C, rng):
+    """inp의 선택 키(실자료 백테스트용, 없으면 합성 시연과 같다):
+    N 거점 규모, x0 초기 상태, snap_n 관측별 표본 크기 (관측 수, n), obs_mask 관측별 사용 여부 (관측 수, n)."""
     P = int(p["particles"])
     t = inp["t_hist"]
     T = len(t)
-    n = len(config.NODES)
     dt = p["dt"]
-    N = np.array([nd["N"] for nd in config.NODES], dtype=float)
+    N = np.asarray(inp["N"], dtype=float) if "N" in inp else np.array([nd["N"] for nd in config.NODES], dtype=float)
+    n = len(N)
     beta_bar = np.asarray(p["beta_bar"])
     gamma = np.asarray(p["gamma"])
     eps = np.asarray(p["eps"])
-    x0 = baseline_state(p, C)
+    x0 = np.asarray(inp["x0"], dtype=float) if "x0" in inp else baseline_state(p, C)
+    snap_obs = np.asarray(inp["snap_n"]) if "snap_n" in inp else None
+    obs_mask = inp.get("obs_mask")
     conc = 60.0
     x = rng.beta(conc * x0, conc * (1 - x0), size=(P, n))
     sd0 = p["ou_sigma"] / np.sqrt(2 * p["ou_rate"])
@@ -191,9 +195,16 @@ def particle_filter(inp, obs_idx, Y, Hs, p, C, rng):
         if (s + 1) in obs_pos:
             y = Y[obs_pos[s + 1]]
             hh = Hs[obs_pos[s + 1]]
-            ll = (stats.nb_logpmf(y[None, :], p["report_rate"] * inc, p["nb_size"]).sum(axis=1)
-                  + stats.betabinom_logpmf(hh[None, :], np.asarray(p["snap_n"])[None, :], x,
-                                           p["snap_conc"]).sum(axis=1))
+            if snap_obs is None and obs_mask is None:
+                ll = (stats.nb_logpmf(y[None, :], p["report_rate"] * inc, p["nb_size"]).sum(axis=1)
+                      + stats.betabinom_logpmf(hh[None, :], np.asarray(p["snap_n"])[None, :], x,
+                                               p["snap_conc"]).sum(axis=1))
+            else:  # 관측마다 표본 크기가 다르거나 빠진 관측이 있는 경우(실자료)
+                nn = snap_obs[obs_pos[s + 1]] if snap_obs is not None else np.asarray(p["snap_n"])
+                mk = np.asarray(obs_mask[obs_pos[s + 1]], dtype=bool) if obs_mask is not None else np.ones(n, dtype=bool)
+                ly = stats.nb_logpmf(np.where(mk, y, 0)[None, :], p["report_rate"] * inc, p["nb_size"])
+                lh = stats.betabinom_logpmf(np.where(mk, hh, 0)[None, :], np.where(mk, nn, 1)[None, :], x, p["snap_conc"])
+                ll = np.where(mk[None, :], ly + lh, 0.0).sum(axis=1)
             with np.errstate(divide="ignore"):
                 w, evidence = stats.normalize_log_weights(np.log(w) + ll)
             e = stats.ess(w)
@@ -236,7 +247,7 @@ def forecast(pf, inp, p, C, rng):
     P = x.shape[0]
     t_f = inp["t_fore"]
     off = len(inp["t_hist"]) - 1
-    n = len(config.NODES)
+    n = x.shape[1]
     beta_bar = np.asarray(p["beta_bar"])
     gamma = np.asarray(p["gamma"])
     eps = np.asarray(p["eps"])

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>R-Delay 기사님 안내</title>
+  <meta name="description" content="포워더의 배차 요청을 받은 운송사가 전달한 링크로 여는 기사님 화면: 몇 시에 가면 덜 기다리는지(시연용 가상 데이터).">
+  <meta name="theme-color" content="#0e2238">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <link rel="stylesheet" href="assets/css/board.css?v=20261109a">
+  <script type="module" src="assets/js/driver.js?v=20261109a"></script>
+</head>
+<body>
+<main class="drv">
+  <header class="drv-top">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#2a78d6"/><path d="M10 44 C22 44 24 20 36 20 S50 32 54 32" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="36" cy="20" r="5" fill="#fff"/><circle cx="54" cy="32" r="4" fill="#fff"/></svg>
+    <b>기사님 안내</b>
+    <span class="tag-demo">가상 데이터</span>
+  </header>
+  <section class="drv-card" aria-labelledby="d-cargo">
+    <p class="drv-what" id="d-what">오늘 작업</p>
+    <h1 class="drv-cargo" id="d-cargo">불러오는 중</h1>
+    <p class="drv-big" id="d-big"></p>
+    <p class="drv-sub" id="d-sub"></p>
+    <p class="drv-changed" id="d-changed" hidden></p>
+    <p class="drv-warn" id="d-warn" hidden></p>
+  </section>
+  <section class="drv-card" aria-labelledby="d-band-h">
+    <h2 class="drv-band-h" id="d-band-h">도착 시각별 터미널에서 걸리는 시간</h2>
+    <div class="drv-band" id="d-band" role="list"></div>
+    <p class="drv-legend"><span>초록 1시간 이내</span><span>주황 1~2시간</span><span>빨강 2시간 넘음</span><span>테두리 = 가장 덜 걸림</span><span>흐림 = 컨테이너 나오기 전</span><span id="d-lg-closed">빗금 = 수출 반입 금지</span></p>
+  </section>
+  <nav class="drv-call">
+    <a class="call" id="d-call" href="tel:01000000000">운송사 배차실 전화</a>
+    <a class="back" href="index.html">포워더 화면</a>
+  </nav>
+  <p class="drv-foot" id="d-foot">터미널 A(가상) 기준 계산입니다. 실제 게이트 기록으로는 아직 검증하지 않았습니다.</p>
+</main>
+</body>
+</html>

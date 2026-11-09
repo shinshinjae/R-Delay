@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>R-Delay 시연 무대</title>
+<style>
+@font-face { font-family: "Pretendard Variable"; src: url("../../docs/assets/fonts/PretendardVariable.subset.woff2") format("woff2"); font-weight: 45 920; }
+@font-face { font-family: "Barlow Semi Condensed"; src: url("../../docs/assets/fonts/barlow-semi-condensed-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+body { font-family: "Pretendard Variable", sans-serif; background: #e9f0f5; color: #0e2238; position: relative; }
+.bg1 { position: absolute; left: -260px; top: -420px; width: 1500px; height: 1500px; border-radius: 50%; background: #ffffff; }
+.bg2 { position: absolute; right: -300px; bottom: -520px; width: 1100px; height: 1100px; border-radius: 50%; background: #dfe8f0; }
+.brand { position: absolute; right: 64px; top: 46px; display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 30px; color: #0e2238; letter-spacing: -0.01em; }
+.brand svg { width: 40px; height: 40px; }
+.brand span { color: #1f5fa8; }
+.brand b { font-weight: 800; }
+#win { position: absolute; left: 64px; top: 150px; width: 1140px; border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 2px 0 rgba(14,34,56,.04), 0 40px 80px -30px rgba(14,34,56,.45); border: 1px solid #d3dce5; transition: transform .7s cubic-bezier(.4,0,.2,1), opacity .5s; }
+.chrome { height: 38px; background: #f3f6f9; border-bottom: 1px solid #dfe6ec; display: flex; align-items: center; gap: 8px; padding: 0 16px; }
+.chrome i { width: 12px; height: 12px; border-radius: 50%; background: #d3dce5; display: inline-block; }
+.chrome i:nth-child(1) { background: #f26b5f; } .chrome i:nth-child(2) { background: #f6be4f; } .chrome i:nth-child(3) { background: #5fc565; }
+.url { margin-left: 18px; flex: 1; max-width: 520px; height: 24px; border-radius: 12px; background: #fff; border: 1px solid #dfe6ec; font-size: 13px; color: #5f7286; display: flex; align-items: center; padding: 0 12px; }
+.viewport { position: relative; width: 1140px; height: 712.5px; overflow: hidden; }
+#app { width: 1440px; height: 900px; border: 0; transform: translate(0px, 0px) scale(0.791667); transform-origin: 0 0; background: #eef2f5; transition: transform .9s cubic-bezier(.4,0,.2,1); }
+#phone { position: absolute; left: 902px; top: 312px; width: 340px; padding: 12px; border-radius: 48px; background: #0e1b2b; box-shadow: 0 40px 80px -30px rgba(14,34,56,.6); transform: translateY(120px); opacity: 0; transition: transform .7s cubic-bezier(.2,.8,.2,1), opacity .5s; }
+#phone.on { transform: translateY(0); opacity: 1; }
+#phone .scr { width: 316px; height: 684px; border-radius: 37px; overflow: hidden; background: #eef2f5; position: relative; }
+#drv { width: 390px; height: 844px; border: 0; transform: scale(0.81); transform-origin: 0 0; }
+#phone .notch { position: absolute; left: 50%; top: 20px; transform: translateX(-50%); width: 96px; height: 26px; border-radius: 14px; background: #0e1b2b; z-index: 2; }
+#cap { position: absolute; left: 1290px; top: 300px; width: 580px; transition: opacity .35s, transform .35s; }
+#cap.out { opacity: 0; transform: translateY(14px); }
+#num { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: 44px; color: #1f5fa8; letter-spacing: .02em; }
+#h1 { margin: 18px 0 0; font-size: 58px; line-height: 1.22; font-weight: 800; letter-spacing: -0.03em; }
+#h1 em { font-style: normal; color: #b45f00; }
+#sub { margin: 26px 0 0; font-size: 27px; line-height: 1.5; color: #4b5f73; font-weight: 600; letter-spacing: -0.01em; }
+#dots { position: absolute; left: 1290px; top: 930px; display: flex; gap: 12px; align-items: center; }
+#dots i { width: 14px; height: 14px; border-radius: 7px; background: #c5d2de; transition: width .4s, background .4s; }
+#dots i.on { width: 46px; background: #1f5fa8; }
+#cursor { position: absolute; left: 600px; top: 600px; width: 34px; height: 34px; z-index: 30; transition: left .75s cubic-bezier(.4,0,.2,1), top .75s cubic-bezier(.4,0,.2,1), opacity .3s; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0,0,0,.35)); }
+.ripple { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 4px solid #1f5fa8; z-index: 29; animation: rp .6s ease-out forwards; pointer-events: none; }
+@keyframes rp { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.8); opacity: 0; } }
+.hl { position: absolute; z-index: 28; border: 4px solid #e8a317; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(14,34,56,.0); transition: all .5s; pointer-events: none; opacity: 0; }
+.hl.on { opacity: 1; }
+#end { position: absolute; inset: 0; z-index: 40; background: #0e2238; color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 0 140px; opacity: 0; transition: opacity .8s; }
+#end.on { opacity: 1; }
+#end .k { font-family: "Barlow Semi Condensed", sans-serif; font-size: 40px; color: #7fb3f0; font-weight: 700; letter-spacing: .02em; }
+#end h2 { margin: 18px 0 0; font-size: 80px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; }
+#end h2 em { font-style: normal; color: #f2b437; }
+#end p { margin: 30px 0 0; font-size: 30px; color: #b9c9d9; font-weight: 600; }
+#end .qr { position: absolute; right: 150px; top: 50%; transform: translateY(-50%); text-align: center; color: #b9c9d9; font-size: 22px; font-weight: 700; }
+#end .qr img { width: 260px; height: 260px; border-radius: 16px; display: block; margin-bottom: 14px; }
+.tag { position: absolute; left: 64px; top: 96px; font-size: 20px; font-weight: 700; color: #8a5200; background: #fdf2da; border: 1px solid #f2c97a; padding: 4px 14px; border-radius: 999px; }
+</style>
+</head>
+<body>
+<div class="bg1"></div><div class="bg2"></div>
+<div class="brand"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#2a78d6"/><path d="M10 44 C22 44 24 20 36 20 S50 32 54 32" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="36" cy="20" r="5" fill="#fff"/><circle cx="54" cy="32" r="4" fill="#fff"/></svg><b>R-<span>Delay</span></b></div>
+<div class="tag" id="tag">시연용 가상 데이터 · 부산신항 장비 고장 장면</div>
+<div id="win">
+  <div class="chrome"><i></i><i></i><i></i><div class="url">jaewansh.github.io/R-Delay_ver3</div></div>
+  <div class="viewport"><iframe id="app" src="../../docs/index.html?s=terminal_failure&c=ulsan_export&doc=driver"></iframe></div>
+</div>
+<div id="phone"><div class="scr"><div class="notch"></div><iframe id="drv" src="about:blank"></iframe></div></div>
+<div id="cap"><div id="num">01</div><h1 id="h1"></h1><p id="sub"></p></div>
+<div id="dots"></div>
+<svg id="cursor" viewBox="0 0 32 32"><path d="M6 3 L6 26 L12 20.5 L16.5 30 L20.5 28.2 L16 19 L24 19 Z" fill="#fff" stroke="#0e2238" stroke-width="2" stroke-linejoin="round"/></svg>
+<div class="hl" id="hl"></div>
+<div id="end">
+  <div class="k">R-Delay</div>
+  <h2>지연이 번지기 전에,<br><em>고객 화물</em>을 지킵니다</h2>
+  <p>중소 포워더용 · 해상 → 육상 → 항공 연쇄지연 조기경보 · 반출입 시각 결정 · 화주·운송사 안내 자동 작성</p>
+  <div class="qr"><img src="qr.png" alt="">라이브 데모</div>
+</div>
+<script>
+const N = 7;
+document.getElementById("dots").innerHTML = Array.from({ length: N }, () => "<i></i>").join("");
+window.setCap = (i, h1, sub) => new Promise((res) => {
+  const cap = document.getElementById("cap");
+  cap.classList.add("out");
+  setTimeout(() => {
+    document.getElementById("num").textContent = String(i).padStart(2, "0");
+    document.getElementById("h1").innerHTML = h1;
+    document.getElementById("sub").innerHTML = sub;
+    [...document.querySelectorAll("#dots i")].forEach((d, k) => d.classList.toggle("on", k === i - 1));
+    cap.classList.remove("out");
+    setTimeout(res, 380);
+  }, 360);
+});
+window.moveCursor = (x, y) => { const c = document.getElementById("cursor"); c.style.left = `${x}px`; c.style.top = `${y}px`; };
+window.ripple = (x, y) => { const r = document.createElement("div"); r.className = "ripple"; r.style.left = `${x}px`; r.style.top = `${y}px`; document.body.appendChild(r); setTimeout(() => r.remove(), 700); };
+window.highlight = (box) => { const h = document.getElementById("hl"); if (!box) { h.classList.remove("on"); return; } Object.assign(h.style, { left: `${box.x - 8}px`, top: `${box.y - 8}px`, width: `${box.w + 16}px`, height: `${box.h + 16}px` }); h.classList.add("on"); };
+window.phone = (on, src) => { const p = document.getElementById("phone"); if (src) document.getElementById("drv").src = src; p.classList.toggle("on", !!on); };
+window.endCard = (on) => document.getElementById("end").classList.toggle("on", !!on);
+window.setTag = (t) => { document.getElementById("tag").textContent = t; };
+// 카메라: 앱 좌표(1440x900)의 상자를 화면 가운데로 당겨 확대한다. 상자가 없으면 전체 보기.
+const VW = 1140, VH = 712.5, BASE = 0.791667;
+window.zoom = (b, zmax = 1.6) => {
+  const ifr = document.getElementById("app");
+  if (!b) { ifr.style.transform = `translate(0px, 0px) scale(${BASE})`; return; }
+  const z = Math.min(zmax, (VW - 40) / (b.w * BASE), (VH - 40) / (b.h * BASE));
+  const sc = BASE * Math.max(1, z);
+  let tx = VW / 2 - (b.x + b.w / 2) * sc, ty = VH / 2 - (b.y + b.h / 2) * sc;
+  tx = Math.min(0, Math.max(VW - 1440 * sc, tx));
+  ty = Math.min(0, Math.max(VH - 900 * sc, ty));
+  ifr.style.transform = `translate(${tx}px, ${ty}px) scale(${sc})`;
+};
+// 앱 안 요소의 앱 좌표(확대와 무관)
+window.appRect = (sel) => {
+  const el = document.getElementById("app").contentDocument.querySelector(sel);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { x: r.left, y: r.top, w: r.width, h: r.height };
+};
+// 앱 화면 안 요소의 무대 좌표(iframe은 0.7917배 축소)
+window.appBox = (sel, which = "app") => {
+  const ifr = document.getElementById(which);
+  const el = ifr.contentDocument.querySelector(sel);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  const f = ifr.getBoundingClientRect();
+  const s = f.width / ifr.offsetWidth;
+  // 창 밖으로 나간 부분은 잘라서 돌려준다(강조 상자가 창을 넘지 않게)
+  let x = f.left + r.left * s, y = f.top + r.top * s, w = r.width * s, h = r.height * s;
+  if (which === "app") {
+    const v = document.querySelector("#win .viewport").getBoundingClientRect();
+    const x2 = Math.min(x + w, v.right - 10), y2 = Math.min(y + h, v.bottom - 10);
+    x = Math.max(x, v.left + 10); y = Math.max(y, v.top + 10);
+    w = Math.max(0, x2 - x); h = Math.max(0, y2 - y);
+  }
+  return { x, y, w, h };
+};
+</script>
+</body>
+</html>

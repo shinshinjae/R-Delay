@@ -6,3 +6,26 @@ venv/
 .DS_Store
 .claude/
 *.log
+
+scripts/demo/frames/
+scripts/demo/*.mp4
+scripts/demo/*.gif
+node_modules/
+.env
+scripts/demo/marks.json
+# 공개 데이터 수집 키트가 받은 자료·인증키(Clarksons 원자료 포함)는 올리지 않는다
+data-kit/data/
+data-kit/.env
+*.part
+# 실자료 백테스트: 원자료·캐시·Clarksons 계산·발표 산출물은 올리지 않는다
+realdata/cache/
+local_only/
+presentation/
+# 공개 저장소(R-Delay_ver2, 이를 이어받은 R-Delay_ver3)에는 코드·문서만 올린다(2026-11-07 결정). 실자료에서 나온 결과·그림·점검 보고서·웹용 집계는 로컬에만 둔다
+realdata/results/
+realdata/reports/
+docs/data/backtest*.json
+# 배 단위 실자료 백테스트(realdata_ship)도 캐시·결과·보고서는 로컬에만 둔다
+realdata_ship/cache/
+realdata_ship/results/
+realdata_ship/reports/

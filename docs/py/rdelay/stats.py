@@ -21,13 +21,15 @@ def nb_logpmf(y, mean, size):
     """
     y = np.asarray(y, dtype=float)
     mean = np.asarray(mean, dtype=float)
-    if np.any(y < 0) or size <= 0 or np.any(mean < 0):
+    if np.any(y < 0) or np.any(np.asarray(size) <= 0) or np.any(mean < 0):  # size는 거점별 배열도 받는다(실자료)
         raise ValueError("invalid negative-binomial arguments")
     y_b, m_b = np.broadcast_arrays(y, mean)
     out = np.full(m_b.shape, -np.inf)
     pos = m_b > 0
     if np.any(pos):
         yy, mm = y_b[pos], m_b[pos]
+        if np.ndim(size):  # 거점별 산포(실자료): 같은 모양으로 펴서 같은 원소를 고른다
+            size = np.broadcast_to(np.asarray(size, dtype=float), m_b.shape)[pos]
         out[pos] = (_lgamma(yy + size) - _lgamma(size) - _lgamma(yy + 1.0)
                     + size * np.log(size / (size + mm)) + yy * np.log(mm / (size + mm)))
     out[(~pos) & (y_b == 0)] = 0.0

@@ -1,14 +1,14 @@
 // R-Delay 상황판: 미리 계산된 결과를 먼저 보여 주고, 조건을 바꾸면 브라우저 안 Python 엔진으로 다시 계산한다.
 // 메인 화면은 쉬운 문장(derive.js)만, 연구·검증용 원자료는 「자세히 보기」 서랍에만 그린다.
-import { timeChart, columnChart, barList, networkChart, legend, niceTicks } from "./charts.js?v=20261023c";
+import { timeChart, columnChart, barList, networkChart, legend, niceTicks } from "./charts.js?v=20261109a";
 import {
   NODE_NAME, SCENARIO_CHIP, SCENARIO_LINE, pct, num, clock, clock10, tickLabel, fmtP, fmtDur, fmtDurShort, fmtRd, fmtWon,
   asOfText, nextUpdateText,
-} from "./format.js?v=20261023c";
+} from "./format.js?v=20261109a";
 import {
   statusView, todoView, sortedCargo, cargoView, cargoDetail, driverAdvice, nodeView, whereNote,
   trendLine, trustLines, CLASS_PILL,
-} from "./derive.js?v=20261023c";
+} from "./derive.js?v=20261109a";
 
 const COLORS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
 const DEFAULT_SCENARIO = "terminal_failure";
@@ -205,7 +205,7 @@ async function ensureWorker() {
   setEngine("loading", ENGINE_TEXT.prep, { prep: true });
   // 서비스 워커가 제어를 시작한 뒤에 워커를 만들어야 Pyodide 파일이 오프라인 캐시에 들어간다.
   if ("serviceWorker" in navigator) await Promise.race([navigator.serviceWorker.ready, sleep(3000)]);
-  worker = new Worker("assets/js/engine-worker.js?v=20261023c");
+  worker = new Worker("assets/js/engine-worker.js?v=20261109a");
   const ready = new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("엔진 준비 시간 초과")), LOAD_TIMEOUT_MS);
     worker.onmessage = (e) => {
@@ -439,7 +439,7 @@ function drawWhere(r) {
 function drawCargoList(r) {
   const keys = sortedCargo(r);
   const todo = todoView(r);
-  $("cargo-h").textContent = `오늘 화물 ${todo.n}건`;
+  $("cargo-h").textContent = `오늘 관리 화물 ${todo.n}건`;
   $("jump-n").textContent = todo.n;
   const counts = $("cargo-counts");
   counts.replaceChildren();

@@ -16,15 +16,15 @@ const PORT = 9333;
 const OPEN_TAB = (tab) => `document.getElementById('open-detail').click(); await new Promise(r => setTimeout(r, 300)); document.getElementById('tab-${tab}').click(); await new Promise(r => setTimeout(r, 500));`;
 const EXPAND = (key) => `document.querySelector('#cargo-${key} .expand').click(); await new Promise(r => setTimeout(r, 300));`;
 const SHOTS = [
-  { file: "screen-overview.png", page: "?s=terminal_failure", from: "header.appbar", to: "#driver", width: 1280, height: 1000, waitEngine: true },
-  { file: "screen-cargo.png", page: "?s=holiday_surge", from: "#cargo", to: "#cargo", tight: true, width: 1280, prep: EXPAND("sea_air") },
-  { file: "screen-h2.png", page: "?s=h2_trucks", from: "#cargo", to: "#cargo", tight: true, width: 1280, prep: EXPAND("ulsan_parts") },
-  { file: "screen-export.png", page: "?s=terminal_failure", from: "#cargo", to: "#cargo", tight: true, width: 1280, prep: EXPAND("ulsan_export") },
-  { file: "screen-gate.png", page: "?s=terminal_failure", from: "#driver", to: "#driver", tight: true, width: 1280 },
-  { file: "screen-cause.png", page: "?s=typhoon_diversion", dialog: "#detail", width: 1280, height: 760, prep: OPEN_TAB("cause") },
-  { file: "screen-nodes-network.png", page: "?s=terminal_failure", dialog: "#detail", width: 1280, height: 1100, prep: OPEN_TAB("network") },
+  { file: "screen-overview.png", page: "analysis.html?s=terminal_failure", from: "header.appbar", to: "#driver", width: 1280, height: 1000, waitEngine: true },
+  { file: "screen-cargo.png", page: "analysis.html?s=holiday_surge", from: "#cargo", to: "#cargo", tight: true, width: 1280, prep: EXPAND("sea_air") },
+  { file: "screen-h2.png", page: "analysis.html?s=h2_trucks", from: "#cargo", to: "#cargo", tight: true, width: 1280, prep: EXPAND("ulsan_parts") },
+  { file: "screen-export.png", page: "analysis.html?s=terminal_failure", from: "#cargo", to: "#cargo", tight: true, width: 1280, prep: EXPAND("ulsan_export") },
+  { file: "screen-gate.png", page: "analysis.html?s=terminal_failure", from: "#driver", to: "#driver", tight: true, width: 1280 },
+  { file: "screen-cause.png", page: "analysis.html?s=typhoon_diversion", dialog: "#detail", width: 1280, height: 760, prep: OPEN_TAB("cause") },
+  { file: "screen-nodes-network.png", page: "analysis.html?s=terminal_failure", dialog: "#detail", width: 1280, height: 1100, prep: OPEN_TAB("network") },
   { file: "screen-validation.png", page: "method.html#valid", from: "#valid", to: "#valid", width: 1280 },
-  { file: "screen-mobile.png", page: "?s=terminal_failure", from: "header.appbar", to: "#where", width: 390, mobile: true },
+  { file: "screen-mobile.png", page: "analysis.html?s=terminal_failure", from: "header.appbar", to: "#where", width: 390, mobile: true },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

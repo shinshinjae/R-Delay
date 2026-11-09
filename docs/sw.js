@@ -4,15 +4,21 @@
 // - 그 밖의 같은 출처 파일: 네트워크 우선(3초 안에 응답이 없으면 캐시), 실패하면 캐시. 주소 뒤 ?s= 등은 페이지 이동에서만 무시한다.
 // - 버전이 고정된 CDN 파일(Pyodide·KaTeX): 캐시 우선. CORS로 받아 성공(200) 응답만 저장한다(실패 응답이 굳지 않게).
 // - 페이지가 'warm' 메시지를 보내면 Pyodide 핵심 파일을 미리 내려받아 캐시에 넣는다.
-const V = "20261023c"; // 화면 파일 주소의 ?v= 값(index.html·method.html·app.js·derive.js·method.js와 같게)
-const CACHE = `rdelay-app-${V}`;
+const V = "20261109a"; // 화면 파일 주소의 ?v= 값(index.html·analysis.html·driver.html·method.html과 모든 js의 import와 같게)
+// 캐시 저장소는 출처(jaewansh.github.io)마다 하나라 옛 R-Delay(/R-Delay/)·R-Delay_ver2(/R-Delay_ver2/)와 같이 쓴다. 옛 워커들은
+// 자기 것이 아닌 rdelay-*·rdelay2-* 캐시를 지우므로, 이 사이트(ver3) 캐시는 rdelay3-로 시작하게 해 서로 지우지 않게 한다.
+const CACHE = `rdelay3-app-${V}`;
 // 버전이 고정된 외부 파일(Pyodide·KaTeX)은 앱 버전이 바뀌어도 지우지 않는 별도 캐시에 둔다.
-const CDN_CACHE = "rdelay-cdn-pyodide0.27.2-katex0.16.11";
+const CDN_CACHE = "rdelay3-cdn-pyodide0.27.2-katex0.16.11";
 const CORE = [
-  "./", "index.html", "method.html",
-  ...["assets/css/style.css", "assets/css/method.css", "assets/js/app.js", "assets/js/charts.js", "assets/js/format.js",
+  "./", "index.html", "analysis.html", "driver.html", "method.html", "manifest.webmanifest",
+  ...["assets/css/board.css", "assets/css/style.css", "assets/css/method.css",
+    "assets/js/board.js", "assets/js/briefing.js", "assets/js/driver.js",
+    "assets/js/app.js", "assets/js/charts.js", "assets/js/format.js",
     "assets/js/derive.js", "assets/js/method.js", "assets/js/validation-tables.js", "assets/js/engine-worker.js"].map((f) => `${f}?v=${V}`),
-  "assets/img/icon.svg",
+  "assets/img/icon.svg", "assets/img/icon-192.png", "assets/img/icon-512.png", "assets/img/icon-maskable-512.png",
+  "assets/fonts/PretendardVariable.subset.woff2", "assets/fonts/barlow-semi-condensed-latin-600-normal.woff2",
+  "assets/fonts/barlow-semi-condensed-latin-700-normal.woff2",
   "data/precomputed.json", "data/ai_model.json",
   "data/validation.json",
   "py/rdelay/__init__.py", "py/rdelay/config.py", "py/rdelay/stats.py", "py/rdelay/sis.py",
@@ -42,8 +48,8 @@ self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const cdn = await caches.open(CDN_CACHE);
     for (const k of await caches.keys()) {
-      // shinshinjae.github.io는 다른 프로젝트와 같은 출처이므로 R-Delay 캐시(rdelay-*)만 정리한다
-      if (!k.startsWith("rdelay-") || k === CACHE || k === CDN_CACHE) continue;
+      // jaewansh.github.io는 다른 프로젝트(옛 R-Delay·R-Delay_ver2 포함)와 같은 출처이므로 이 사이트 캐시(rdelay3-*)만 정리한다
+      if (!k.startsWith("rdelay3-") || k === CACHE || k === CDN_CACHE) continue;
       // 옛 버전 캐시에 있던 Pyodide·KaTeX는 CDN 캐시로 옮긴 뒤 지운다(휴대폰에서 오프라인 계산을 잃지 않게)
       const old = await caches.open(k);
       for (const req of await old.keys()) {

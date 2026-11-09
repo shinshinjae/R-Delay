@@ -1,0 +1,116 @@
+"""받아야 할 자료 목록 하나로 관리: check_inventory.py와 MANUAL_DOWNLOADS.md가 같이 쓴다.
+
+how: auto(스크립트가 받음) · manual(로그인 후 직접 받아 폴더에 넣기) · clarksons(요청서 PDF 참고) · derived(스크립트가 만듦)
+"""
+from __future__ import annotations
+
+DG = "https://www.data.go.kr/data/{}/fileData.do"
+DA = "https://www.data.go.kr/data/{}/openapi.do"
+
+ITEMS = [
+    # ---------------- API로 자동 수집 ----------------
+    dict(key="portmis_cntl", how="auto", prio="필수", name="해양수산부_관제정보 (PORT-MIS)", src="15006354",
+         folder="portmis/cntl/daily", globs=["*.csv"], url=DA.format("15006354"),
+         use="‘선박 대기 12시간 초과’ 정답 라벨 · 정박지/선석 이벤트",
+         cmd="python fetch_portmis.py --api cntl --start 2023-01-01 --end 2026-11-07 --reverse"),
+    dict(key="portmis_vssl", how="auto", prio="선택", name="해양수산부_선박운항정보 (입출항 신고)", src="15006353",
+         folder="portmis/vssl/daily", globs=["*.csv"], url=DA.format("15006353"),
+         use="입항 신고 기준 도착률 λ(t) 교차검증",
+         cmd="python fetch_portmis.py --api vssl --start 2025-01-01 --end 2026-11-07 --reverse"),
+
+    # ---------------- 기상: 기상자료개방포털 CSV (API허브 키가 있으면 fetch_kma.py로도 받음) ----------------
+    dict(key="kma_asos", how="manual", prio="필수", name="기상청 ASOS 시간자료 (부산 159·울산 152·창원 155)", src="기상자료개방포털",
+         folder="manual/kma_asos", globs=["*.csv", "*.xlsx", "*.zip"], alt_folder="kma/asos", alt_globs=["*_*_*.txt"],
+         url="https://data.kma.go.kr/data/grnd/selectAsosRltmList.do?pgmNo=36",
+         note="로그인 → 데이터 → 기상관측 → 지상 → 종관기상관측(ASOS) → 시간 → 1년씩 4번(2023·2024·2025·2026) → CSV",
+         use="풍속·강수 → 하역 중단 위험(전파율 f_ω 입력)"),
+    dict(key="kma_buoy", how="manual", prio="권장", name="기상청 해양기상부이 시간자료 (거제도 + 이수도·지심도)", src="기상자료개방포털",
+         folder="manual/kma_buoy", globs=["*.csv", "*.xlsx", "*.zip"], alt_folder="kma/buoy", alt_globs=["*_*_*.txt"],
+         url="https://data.kma.go.kr/data/sea/selectBuoyRltmList.do?pgmNo=52",
+         note="데이터 → 기상관측 → 해양 → 해양기상부이 → 시간 → 1년씩 4번. 거제도가 장기 자료, 이수도·지심도는 2025-06 추가 지점",
+         use="파고·풍속 → 하역 중단 위험"),
+    # ---------------- 로그인 후 직접 받기 (공공데이터포털 등) ----------------
+    dict(key="platform_timely", how="manual", prio="필수", name="해양수산부_수출입 물류 플랫폼_적시선박 입출항 정보", src="15151750",
+         folder="manual/platform_timely_calls", globs=["*"], url=DG.format("15151750"),
+         use="입항·접안·출항 일시 → 대기시간 직접 계산(라벨 검증용, 선사 입력분만)"),
+    dict(key="platform_berth", how="manual", prio="필수", name="해양수산부_수출입 물류 플랫폼_터미널 선석 일정 정보", src="15151748",
+         folder="manual/platform_berth_schedule", globs=["*"], url=DG.format("15151748"),
+         use="예정 접안(ETB) 대비 실제 접안 지연"),
+    dict(key="bpa_container", how="manual", prio="필수", name="부산항만공사_외내항컨테이너통합집계정보", src="15147941",
+         folder="manual/bpa_container_monthly", globs=["*"], url=DG.format("15147941"), refresh_after="2026-11-05",
+         use="시설(터미널)별 월 TEU → 물량 기준선",
+         note="11/5 갱신 예정 → 11/5~7에 한 번 더 받기(2025년분)"),
+    dict(key="pnc_cutoff", how="manual", prio="필수", name="PNC 수출 컨테이너 반입 마감 규정(접안 12시간 전) 공지 PDF", src="Maersk 공지",
+         folder="manual/rules", globs=["*.pdf"],
+         url="https://eascpcd.maersk.com/~/media_sc9/maersk/local-information/files/asia-pacific/korea/export/busan-pnc-export-full-container-late-gate-in-container-cut-off-rule-implementation.pdf",
+         use="‘12시간’ 기준의 사업적 근거(발표)"),
+    dict(key="platform_plan", how="manual", prio="권장", name="해양수산부_수출입 물류 플랫폼_선박 운영 예정일정", src="15151744",
+         folder="manual/platform_planned_schedule", globs=["*"], url=DG.format("15151744"),
+         use="예상 입항·접안 시각 → 계획 대비 편차"),
+    dict(key="bpa_calls", how="manual", prio="권장", name="부산항만공사_선박 입출항 집계 정보 (2019–2024)", src="15150637",
+         folder="manual/bpa_vessel_calls", globs=["*"], url=DG.format("15150637"),
+         use="예정 대비 실제 입항 지연"),
+    dict(key="kma_typhoon", how="manual", prio="권장", name="기상청_태풍경로 + 기상청_태풍목록", src="15043568 · 15043569",
+         folder="manual/kma_typhoon", globs=["*"], url=DG.format("15043568") + " · " + DG.format("15043569"),
+         use="태풍 장면 날짜·경로 표시"),
+    dict(key="ex_speed", how="manual", prio="권장", name="한국도로공사_노선별 방향별 일별 1시간 구간통행속도", src="15043737",
+         folder="manual/ex_speed_1h", globs=["*.zip", "*.csv", "*.txt"], url="http://data.ex.co.kr/portal/fdwn/view?type=VDS&num=C6&requestfrom=dataset",
+         use="육상층: 신항 배후 고속도로 속도 → filter_ex_speed.py로 필요한 구간만",
+         note="원본이 큼(GB 단위 추정). 2023-01 이후 월 파일만 받아도 충분"),
+    dict(key="platform_report", how="manual", prio="선택", name="해양수산부_수출입 물류 플랫폼_선박 입항신고 정보", src="15151749",
+         folder="manual/platform_arrival_reports", globs=["*"], url=DG.format("15151749"),
+         use="입항 신고 시각"),
+    dict(key="platform_result", how="manual", prio="선택", name="해양수산부_수출입 물류 플랫폼_항만 입항실적 정보", src="15151756",
+         folder="manual/platform_arrival_results", globs=["*"], url=DG.format("15151756"),
+         use="관제 입항일시 교차검증"),
+    dict(key="bpa_vessel_monthly", how="manual", prio="선택", name="부산항만공사_외내항선박통합집계실시간", src="15147939",
+         folder="manual/bpa_vessel_monthly", globs=["*"], url=DG.format("15147939"),
+         use="부두·선종별 월 척수·톤수(트래픽 기준선)"),
+    dict(key="bpa_container_annual", how="manual", prio="선택", name="부산항만공사_부산항 컨테이너 수송통계", src="15055478",
+         folder="manual/bpa_container_annual", globs=["*"], url=DG.format("15055478"),
+         use="부두별 연간 TEU(발표 맥락)"),
+    dict(key="ex_travel", how="manual", prio="선택", name="한국도로공사_구간 통행시간", src="15043743",
+         folder="manual/ex_travel_time", globs=["*"], url=DG.format("15043743"),
+         use="콘존별 통행시간(속도 보완)"),
+    dict(key="khoa_tide", how="manual", prio="선택", name="해양수산부_공동활용체계_조위관측 (관측소 목록)", src="15153228",
+         folder="manual/khoa_tide_stations", globs=["*"], url="https://www.data.go.kr/dcat/metadata/15153228",
+         use="부산 신항·가덕도 조위관측소 코드 확인(조위 API 15142507은 활용신청만)"),
+
+    # ---------------- Clarksons (요청서 PDF 기준) ----------------
+    dict(key="clk_A1", how="clarksons", prio="필수", name="A1 Containership Port Congestion Index (일별)", src="SIN 546909",
+         folder="clarksons/raw", globs=["CLK_A1_*"], use="해상층 외생 충격 신호(f_ω 입력)"),
+    dict(key="clk_A2", how="clarksons", prio="필수", name="A2 권역별 항만 체류 컨테이너선 선복(TEU, 일별)", src="SIN",
+         folder="clarksons/raw", globs=["CLK_A2_*"], use="중국 혼잡 → 부산 환적 선행 신호"),
+    dict(key="clk_B1", how="clarksons", prio="필수", name="B1 World Fleet Register 컨테이너선 선대 목록", src="WFR",
+         folder="clarksons/raw", globs=["CLK_B1_*"], use="입항 선박 TEU → 물동량 보정 ξ (match_clarksons_ships.py)"),
+    dict(key="clk_C1", how="clarksons", prio="필수", name="C1 컨테이너선 정기용선료(선형별, 주별)", src="SIN",
+         folder="clarksons/raw", globs=["CLK_C1_*"], use="선박 대기 1일 비용"),
+    dict(key="clk_catalog", how="clarksons", prio="필수", name="series_catalog.csv (시계열 이름·번호·열람일)", src="직접 작성",
+         folder="clarksons/meta", globs=["series_catalog.csv"], use="인용·재현"),
+    dict(key="clk_C2", how="clarksons", prio="선택", name="C2 연료유 가격 VLSFO·MGO", src="SIN",
+         folder="clarksons/raw", globs=["CLK_C2_*"], use="대기 중 연료비"),
+    dict(key="clk_D1", how="clarksons", prio="선택", name="D1 Sea/net 부산 기항 이력", src="Sea/net",
+         folder="clarksons/raw", globs=["CLK_D1_*"], use="대기 라벨 교차검증"),
+    dict(key="clk_D2", how="clarksons", prio="선택", name="D2 SIN Ports: Busan", src="SIN",
+         folder="clarksons/raw", globs=["CLK_D2_*"], use="PORT-MIS 합계 검증"),
+    dict(key="clk_E1", how="clarksons", prio="선택", name="E1 SCFI·CCFI", src="SIN",
+         folder="clarksons/raw", globs=["CLK_E1_*"], use="시장 맥락"),
+    dict(key="clk_E2", how="clarksons", prio="선택", name="E2 컨테이너 물동량(연간)", src="SIN",
+         folder="clarksons/raw", globs=["CLK_E2_*"], use="사업 맥락"),
+
+    # ---------------- 스크립트가 만드는 파생 자료 ----------------
+    dict(key="d_voyages", how="derived", prio="필수", name="신항 컨테이너선 항차·대기 라벨", src="build_wait_labels.py",
+         folder="derived", globs=["newport_voyages.csv"], use="백테스트 정답"),
+    dict(key="d_wait2h", how="derived", prio="필수", name="2시간 단위 대기 척수", src="build_wait_labels.py",
+         folder="derived", globs=["newport_waiting_2h.csv"], use="해상층 관측 입력"),
+    dict(key="d_shipmap", how="derived", prio="권장", name="ship_teu_map.csv (호출부호 → TEU)", src="match_clarksons_ships.py",
+         folder="clarksons/derived", globs=["ship_teu_map.csv"], use="입항 선복 L"),
+    dict(key="d_exspeed", how="derived", prio="권장", name="신항 배후 고속도로 1시간 속도", src="filter_ex_speed.py",
+         folder="derived", globs=["ex_speed_busan.csv"], use="육상층 관측 입력"),
+]
+
+API_SIGNUPS = [
+    ("공공데이터포털", "해양수산부_관제정보 (15006354)", "필수", DA.format("15006354"), "DATA_GO_KR_KEY"),
+    ("공공데이터포털", "해양수산부_선박운항정보 (15006353)", "선택", DA.format("15006353"), "DATA_GO_KR_KEY (같은 키)"),
+    ("기상청 API허브", "ASOS·해양기상부이 기간 조회 — 승인 대기가 있어 이번엔 생략, 개방포털 CSV로 대신", "선택", "https://apihub.kma.go.kr", "KMA_APIHUB_KEY"),
+]

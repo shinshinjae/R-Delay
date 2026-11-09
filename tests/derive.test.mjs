@@ -73,10 +73,10 @@ test("24시간 카드: 중앙값만으로 '1 아래에 머물'을 말하지 않�
 });
 
 test("할 일 요약", () => {
-  assert.equal(todoView(R.base).text, "오늘 화물 4건 모두 계획대로 진행 가능");
-  assert.equal(todoView(R.terminal_failure).text, "오늘 화물 4건 — 시간 변경 1 · 화주 안내 3");
-  assert.equal(todoView(R.holiday_surge).text, "오늘 화물 4건 — 시간 변경 1 · 다시 확인 1 · 계획대로 2");
-  assert.equal(todoView(R.h2_trucks).text, "오늘 화물 4건 모두 계획대로 진행 가능 · 수소 트럭 가능 3건 · 불가 1건");
+  assert.equal(todoView(R.base).text, "오늘 관리 화물 4건 모두 계획대로 진행 가능");
+  assert.equal(todoView(R.terminal_failure).text, "오늘 관리 화물 4건 — 시간 변경 1 · 화주 안내 3");
+  assert.equal(todoView(R.holiday_surge).text, "오늘 관리 화물 4건 — 시간 변경 1 · 다시 확인 1 · 계획대로 2");
+  assert.equal(todoView(R.h2_trucks).text, "오늘 관리 화물 4건 모두 계획대로 진행 가능 · 수소 트럭 가능 3건 · 불가 1건");
 });
 
 test("화물 분류는 엔진 판단과 맞는다(6장면 × 4화물)", () => {
@@ -166,7 +166,7 @@ test("기사님 안내: 컨테이너 반출과 반입 금지를 반영한다", (
 test("믿을 수 있나요: 공지 덕분인 성과는 한계로, 마지막 줄 고정, '실제로' 쓰지 않음", () => {
   for (const run of Object.values(R)) {
     const t = trustLines(VALID, run);
-    assert.equal(t.limits.at(-1), "모두 가상 세계 시험이며 실제 항만 자료로는 아직 검증 전입니다.");
+    assert.equal(t.limits.at(-1), "모두 가상 세계 시험입니다. 실제 공개 자료로 되돌려 본 결과는 기술 보고서(REPORT.md)에 따로 있습니다.");
     for (const line of [...t.good, ...t.limits.slice(0, -1)]) assert.ok(!line.includes("실제로"), line);
   }
   const tf = trustLines(VALID, R.terminal_failure);
@@ -292,7 +292,7 @@ test("믿을 수 있나요: 공지를 가린 경보 수의 뜻과 과소 예측 
   const t = trustLines(VALID, R.terminal_failure);
   assert.ok(t.limits.some((l) => l.includes("공지를 가리면 판단 시각 번짐 경보는 30회 중 4회뿐")), t.limits.join("\n"));
   assert.ok(t.limits.some((l) => /예측보다 \d+(~\d+)?%p 높았습니다/.test(l)), t.limits.join("\n"));
-  assert.equal(t.limits.at(-1), "모두 가상 세계 시험이며 실제 항만 자료로는 아직 검증 전입니다.");
+  assert.equal(t.limits.at(-1), "모두 가상 세계 시험입니다. 실제 공개 자료로 되돌려 본 결과는 기술 보고서(REPORT.md)에 따로 있습니다.");
 });
 
 test("막힘 전망: 지금(0번 칸)으로 풀린다고 하지 않고, 끝 2시간 안에서만 풀리면 신호 없음으로 본다", () => {

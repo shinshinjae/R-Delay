@@ -2,7 +2,7 @@
 // 장면별 실행 결과는 쓰지 않고 validation.json · ai_model.json · precomputed.json(presets)만 읽는다.
 import {
   drawValTable, valNoteText, drawNoticeTable, drawMisspecTable, drawCargoTable, valCargoNoteText, drawAiInfo,
-} from "./validation-tables.js?v=20261023c";
+} from "./validation-tables.js?v=20261109a";
 
 const $ = (id) => document.getElementById(id);
 

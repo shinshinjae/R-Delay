@@ -1,0 +1,10 @@
+{
+  "_설명": "build_wait_labels.py 판정 규칙(정규식). 먼저 --inspect로 관제구분·시설명 실제 값을 보고 맞게 고치세요.",
+  "container_ship_pattern": "컨테이너|CONTAINER|FULL ?CONT",
+  "arrival_pattern": "입항",
+  "anchorage_pattern": "박지|묘지|정박지|묘박지|투묘|錨|ANCH",
+  "newport_berth_pattern": "^신항 ?(?:\\d부두|다목적부두)|PNIT|PNC|HJNC|HPNT|BNCT|BCT|DGT",
+  "exclude_facility_pattern": "",
+  "wait_threshold_h": 12,
+  "grid_hours": 2
+}

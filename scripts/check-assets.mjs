@@ -3,7 +3,9 @@
 // 그래서 파일 내용을 고치면 docs/sw.js의 V와 모든 ?v= 값을 함께 올려야 한다. 이 스크립트는
 //   1) docs의 html·js에 적힌 ?v= 값이 모두 sw.js의 V와 같은지
 //   2) assets/css·js의 모든 파일이 sw.js 오프라인 목록(CORE)에 있는지
-//   3) 같은 V인데 파일 내용이 바뀌지 않았는지(scripts/asset-hashes.json과 비교)
+//   3) 모든 페이지(docs/*.html)와 자료(docs/data/*.json)가 CORE에 있는지(빠지면 오프라인에서 그 페이지·자료가 열리지 않는다),
+//      반대로 CORE에 적힌 파일이 실제로 있는지
+//   4) 같은 V인데 파일 내용이 바뀌지 않았는지(scripts/asset-hashes.json과 비교)
 // 를 확인한다. V를 올린 뒤에는 --write로 해시 목록을 새로 적는다.
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -36,10 +38,20 @@ for (const file of assets) {
 // 반대로 CORE에 적힌 파일이 실제로 있는지(하나라도 없으면 서비스 워커 설치가 통째로 실패한다)
 const core = (/const CORE = \[([\s\S]*?)\n\];/.exec(sw) || [])[1] || "";
 if (!core) errors.push("docs/sw.js에서 CORE 목록을 찾지 못했습니다");
+const corePaths = new Set();
 for (const m of core.matchAll(/"([^"]+)"/g)) {
   const p = m[1].replace(/\?.*$/, "");
+  corePaths.add(p);
   if (p === "./" || p.startsWith("http")) continue;
   if (!existsSync(join(DOCS, p))) errors.push(`docs/sw.js CORE의 ${p} 파일이 없습니다`);
+}
+// 모든 페이지(docs/*.html)와 자료(docs/data/*.json)가 CORE에 있는지(같은 따옴표 문자열 읽기, ?v= 등은 떼고 비교)
+const dataFiles = existsSync(join(DOCS, "data")) ? readdirSync(join(DOCS, "data")).filter((f) => f.endsWith(".json")).map((f) => join(DOCS, "data", f)) : [];
+if (core) {
+  for (const file of [...pages, ...dataFiles]) {
+    const p = posix(relative(DOCS, file));
+    if (!corePaths.has(p)) errors.push(`${p}가 docs/sw.js 오프라인 목록(CORE)에 없습니다`);
+  }
 }
 
 const hashes = Object.fromEntries(assets.map((f) => [rel(f), createHash("sha256").update(readFileSync(f)).digest("hex")]));
