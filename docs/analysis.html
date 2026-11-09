@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261109a">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261109b">
   <script>
     // 배포 직후 옛 서비스 워커가 옛 화면 파일을 섞어 주면 첫 화면이 비어 버린다. 첫 화면을 그리기 전에 화면 스크립트(assets/js)에서
     // 오류가 나면, 새 워커를 내려받는 중이면 자리 잡을 때까지(최대 30초), 아니면 4초 기다렸다가 한 번만 새로 고친다.
@@ -47,7 +47,7 @@
       window.addEventListener("unhandledrejection", function (e) { if (fromApp(e.reason && e.reason.stack)) retry(); });
     })();
   </script>
-  <script type="module" src="assets/js/app.js?v=20261109a"></script>
+  <script type="module" src="assets/js/app.js?v=20261109b"></script>
 </head>
 <body>
 <a class="skip" href="#status">본문으로 건너뛰기</a>

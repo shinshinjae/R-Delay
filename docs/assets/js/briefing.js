@@ -3,10 +3,10 @@
 // 판단 규칙(분류·놓칠 확률·추천 시각)은 derive.js를 그대로 쓰고, 여기서는 받는 사람에 맞춰 말투와 순서만 바꾼다.
 import {
   classifyCargo, verbOf, statusView, sortedCargo, sameIfEarly, nodeState, STATE_WORD, isHold, driverAdvice,
-} from "./derive.js?v=20261109a";
+} from "./derive.js?v=20261109b";
 import {
   NODE_NAME, SCENARIO_CHIP, CARGO_SHORT, clock, clock10, clock10ceil, fmtDur, fmtP, fmtWon, fmtRd, fmtCap, nextUpdateText,
-} from "./format.js?v=20261109a";
+} from "./format.js?v=20261109b";
 
 export const DOC_KINDS = [
   { key: "shipper", label: "화주 안내", scope: "cargo" },

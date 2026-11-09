@@ -1,8 +1,8 @@
 // R-Delay 포워더 브리핑 화면: 상황 띠 → 화물판(시간축 위 오늘 관리 화물) → 브리핑 문서(화주 안내·배차 요청·사내 보고·선사·터미널 협의).
 // 판단 규칙은 derive.js, 문서 문장은 briefing.js가 만든다. 여기서는 그리기와 클릭만 다룬다.
-import { statusView, sortedCargo, classifyCargo, cargoView, nodeState, STATE_WORD, trustLines } from "./derive.js?v=20261109a";
-import { SCENARIO_CHIP, clock, clock10, fmtP, fmtRd, fmtDur, asOfText, nextUpdateText, CARGO_SHORT } from "./format.js?v=20261109a";
-import { DOC_KINDS, buildDoc, docToText, docToHTML, driverLink, cargoFacts, DEFAULT_SENDER, josa } from "./briefing.js?v=20261109a";
+import { statusView, sortedCargo, classifyCargo, cargoView, nodeState, STATE_WORD, trustLines } from "./derive.js?v=20261109b";
+import { SCENARIO_CHIP, clock, clock10, fmtP, fmtRd, fmtDur, asOfText, nextUpdateText, CARGO_SHORT } from "./format.js?v=20261109b";
+import { DOC_KINDS, buildDoc, docToText, docToHTML, driverLink, cargoFacts, DEFAULT_SENDER, josa } from "./briefing.js?v=20261109b";
 
 const $ = (id) => document.getElementById(id);
 const HOURS = 20; // 10:00 → 내일 06:00

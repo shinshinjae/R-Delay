@@ -4,7 +4,7 @@
 // - 그 밖의 같은 출처 파일: 네트워크 우선(3초 안에 응답이 없으면 캐시), 실패하면 캐시. 주소 뒤 ?s= 등은 페이지 이동에서만 무시한다.
 // - 버전이 고정된 CDN 파일(Pyodide·KaTeX): 캐시 우선. CORS로 받아 성공(200) 응답만 저장한다(실패 응답이 굳지 않게).
 // - 페이지가 'warm' 메시지를 보내면 Pyodide 핵심 파일을 미리 내려받아 캐시에 넣는다.
-const V = "20261109a"; // 화면 파일 주소의 ?v= 값(index.html·analysis.html·driver.html·method.html과 모든 js의 import와 같게)
+const V = "20261109b"; // 화면 파일 주소의 ?v= 값(index.html·analysis.html·driver.html·method.html과 모든 js의 import와 같게)
 // 캐시 저장소는 출처(jaewansh.github.io)마다 하나라 옛 R-Delay(/R-Delay/)·R-Delay_ver2(/R-Delay_ver2/)와 같이 쓴다. 옛 워커들은
 // 자기 것이 아닌 rdelay-*·rdelay2-* 캐시를 지우므로, 이 사이트(ver3) 캐시는 rdelay3-로 시작하게 해 서로 지우지 않게 한다.
 const CACHE = `rdelay3-app-${V}`;

@@ -4,7 +4,7 @@
 import {
   NODE_NAME, SCENARIO_CHIP, CARGO_SHORT, clock, clock10, clock10ceil, fmtDur, fmtDurCeil, fmtDurRange, fmtP, fmtWon, fmtRd,
   fmtRatio, fmtCap, nextUpdateText, hourLabel,
-} from "./format.js?v=20261109a";
+} from "./format.js?v=20261109b";
 
 export const LEVEL_OF_ALARM = { "정상": "good", "적체 경보": "warning", "확산 경보": "serious", "확산·적체 경보": "critical" };
 
